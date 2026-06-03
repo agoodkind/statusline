@@ -184,8 +184,11 @@ func contextUsed(path string) int {
 // terminalWidth returns the column count of the controlling terminal, or 80
 // when it cannot be determined.
 func terminalWidth() int {
-	for _, fd := range []int{int(os.Stdout.Fd()), int(os.Stderr.Fd())} {
-		if w, _, err := term.GetSize(fd); err == nil && w > 0 {
+	for _, fd := range []uintptr{os.Stdout.Fd(), os.Stderr.Fd()} {
+		if fd > uintptr(math.MaxInt) {
+			continue
+		}
+		if w, _, err := term.GetSize(int(fd)); err == nil && w > 0 {
 			return w
 		}
 	}
