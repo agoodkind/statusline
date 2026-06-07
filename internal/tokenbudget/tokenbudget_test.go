@@ -6,8 +6,8 @@ import (
 	"goodkind.io/statusline/internal/statuspayload"
 )
 
-func TestCeilingUsesPayloadContextWindowSizeAndOutputReserve(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "64000")
+func TestCeilingUsesPayloadContextWindowSizeWithoutOutputReserve(t *testing.T) {
+	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "128000")
 
 	data := statuspayload.Payload{
 		Model: statuspayload.Model{ID: "claude-sonnet-4-1m"},
@@ -17,43 +17,23 @@ func TestCeilingUsesPayloadContextWindowSizeAndOutputReserve(t *testing.T) {
 	}
 
 	got := Ceiling(data)
-	want := 886_000
+	want := 950_000
 	if got != want {
 		t.Fatalf("Ceiling() = %d, want %d", got, want)
 	}
 }
 
-func TestCeilingFallsBackToModelAndOutputReserve(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "64000")
+func TestCeilingDoesNotRender872KForOneMillionModelWith128KOutputReserve(t *testing.T) {
+	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "128000")
 
 	data := statuspayload.Payload{
 		Model: statuspayload.Model{ID: "claude-sonnet-4-1m"},
 	}
 
 	got := Ceiling(data)
-	want := 936_000
+	want := 950_000
 	if got != want {
 		t.Fatalf("Ceiling() = %d, want %d", got, want)
-	}
-}
-
-func TestInputCeilingUsesDefaultReserveWhenEnvIsInvalid(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "not-a-number")
-
-	got := InputCeiling(200_000)
-	want := 136_000
-	if got != want {
-		t.Fatalf("InputCeiling() = %d, want %d", got, want)
-	}
-}
-
-func TestInputCeilingKeepsTotalWhenReserveConsumesWindow(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "300000")
-
-	got := InputCeiling(200_000)
-	want := 200_000
-	if got != want {
-		t.Fatalf("InputCeiling() = %d, want %d", got, want)
 	}
 }
 
