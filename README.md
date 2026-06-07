@@ -10,23 +10,18 @@ followed by the session cost.
 
 ## What it shows
 
-- Left: tokens used in the current session, read from the most recent `usage`
-  block in the transcript Claude Code passes on stdin.
+- Left: input tokens used in the current context window, read from Claude
+  Code's `context_window.total_input_tokens` field with a transcript fallback
+  when live token fields are absent.
 - Bar: fills against the usable input ceiling, colored green to red by how full
   it is, ending on a fractional sub-cell so it grows smoothly.
-- Right: the usable input ceiling and the session cost.
+- Right: the usable input ceiling and the session cost from
+  `cost.total_cost_usd`.
 
-The usable input ceiling is the model's context window minus the tokens reserved
-for the reply:
-
-```
-ceiling = context_window - CLAUDE_CODE_MAX_OUTPUT_TOKENS
-```
-
-The window is 1M when the model id carries `[1m]`, otherwise 200k. The reply
-reserve is read from `CLAUDE_CODE_MAX_OUTPUT_TOKENS` at runtime, falling back to
-32k when unset. When usage exceeds the ceiling, the right number rises to match
-usage so the bar reads full and the left never exceeds the right.
+The ceiling logic lives in `internal/tokenbudget`, which should be treated as the
+source of truth for context-window and output-reserve defaults. When usage
+exceeds the ceiling, the right number rises to match usage so the bar reads full
+and the left never exceeds the right.
 
 ## Build
 
