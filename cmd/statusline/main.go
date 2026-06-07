@@ -36,7 +36,7 @@ const millionTokenWindow = 1_000_000
 
 // defaultMaxOutputTokens is the reply budget assumed when the environment does
 // not set CLAUDE_CODE_MAX_OUTPUT_TOKENS.
-const defaultMaxOutputTokens = 32_000
+const defaultMaxOutputTokens = 64_000
 
 // trackColor is the dim gray of the unfilled portion of the bar.
 const trackColor = "#3A3A3A"
@@ -177,6 +177,9 @@ func contextUsed(path string) int {
 		if sum > 0 {
 			used = sum
 		}
+	}
+	if err := scanner.Err(); err != nil {
+		return 0
 	}
 	return used
 }
