@@ -102,7 +102,7 @@ func TestRunFallsBackToPracticalMillionTokenLimit(t *testing.T) {
 	}
 }
 
-func TestRunIncludesRateLimitRemainingPercentagesWhenColumnsFit(t *testing.T) {
+func TestRunIncludesRateLimitUsedPercentagesWhenColumnsFit(t *testing.T) {
 	t.Setenv("COLUMNS", "90")
 
 	input := `{"cost":{"total_cost_usd":2.4193},"context_window":{"total_input_tokens":500,"context_window_size":900},"rate_limits":{"five_hour":{"used_percentage":24.4},"seven_day":{"used_percentage":40.6}}}`
@@ -113,28 +113,28 @@ func TestRunIncludesRateLimitRemainingPercentagesWhenColumnsFit(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
-	wantSuffix := " 900 · $2.42 · 5h 76% · 7d 59%\n"
+	wantSuffix := " 900 · $2.42 · 5h 24% · 7d 41%\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
 	}
 }
 
-func TestRemainingPercentageClampsAndRounds(t *testing.T) {
+func TestUsedPercentagePercentClampsAndRounds(t *testing.T) {
 	testCases := []struct {
 		name string
 		used float64
 		want int
 	}{
-		{name: "rounds", used: 24.4, want: 76},
-		{name: "clamps low", used: 150, want: 0},
-		{name: "clamps high", used: -10, want: 100},
+		{name: "rounds", used: 24.4, want: 24},
+		{name: "clamps low", used: -10, want: 0},
+		{name: "clamps high", used: 150, want: 100},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			got := remainingPercentage(testCase.used)
+			got := usedPercentagePercent(testCase.used)
 			if got != testCase.want {
-				t.Fatalf("remainingPercentage() = %d, want %d", got, testCase.want)
+				t.Fatalf("usedPercentagePercent() = %d, want %d", got, testCase.want)
 			}
 		})
 	}
