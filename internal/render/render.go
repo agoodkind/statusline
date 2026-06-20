@@ -21,7 +21,7 @@ const (
 
 var partialBlocks = []string{" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}
 
-// UsageLimit contains one optional used-usage segment.
+// UsageLimit contains one optional rate-limit suffix with a used percentage.
 type UsageLimit struct {
 	Label          string
 	UsedPercentage int
