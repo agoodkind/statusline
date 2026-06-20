@@ -20,12 +20,12 @@ func TestLineRaisesCeilingToUsage(t *testing.T) {
 
 func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	usageLimits := []UsageLimit{
-		{Label: "5h", RemainingPercentage: 76},
-		{Label: "7d", RemainingPercentage: 59},
+		{Label: "5h", UsedPercentage: 24},
+		{Label: "7d", UsedPercentage: 41},
 	}
 
 	got := Line(500_000, 950_000, 20.57, 80, usageLimits...)
-	wantSuffix := " 950k · $20.57 · 5h 76%"
+	wantSuffix := " 950k · $20.57 · 5h 24%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
@@ -34,7 +34,7 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	}
 
 	got = Line(500_000, 950_000, 20.57, 90, usageLimits...)
-	wantSuffix = " 950k · $20.57 · 5h 76% · 7d 59%"
+	wantSuffix = " 950k · $20.57 · 5h 24% · 7d 41%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}

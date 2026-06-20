@@ -21,10 +21,10 @@ const (
 
 var partialBlocks = []string{" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}
 
-// UsageLimit contains one optional remaining-usage segment.
+// UsageLimit contains one optional used-usage segment.
 type UsageLimit struct {
-	Label               string
-	RemainingPercentage int
+	Label          string
+	UsedPercentage int
 }
 
 // Line builds the complete status line.
@@ -65,7 +65,7 @@ func suffixWithUsageLimits(
 }
 
 func (usageLimit UsageLimit) text() string {
-	return usageLimit.Label + " " + strconv.Itoa(usageLimit.RemainingPercentage) + "%"
+	return usageLimit.Label + " " + strconv.Itoa(usageLimit.UsedPercentage) + "%"
 }
 
 func clampBarWidth(width int) int {
