@@ -4,6 +4,7 @@ package app
 import (
 	"fmt"
 	"io"
+	"math"
 	"os"
 
 	"github.com/charmbracelet/lipgloss"
@@ -43,7 +44,32 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 	}
 	ceiling := tokenbudget.Ceiling(data)
 	width := terminal.Width(os.Stdout.Fd(), os.Stderr.Fd())
-	fmt.Fprintln(stdout, render.Line(used, ceiling, data.Cost.TotalCostUSD, width))
+	usageLimits := usageLimitSegments(data.RateLimits)
+	fmt.Fprintln(stdout, render.Line(used, ceiling, data.Cost.TotalCostUSD, width, usageLimits...))
 
 	return successExitCode
+}
+
+func usageLimitSegments(rateLimits statuspayload.RateLimits) []render.UsageLimit {
+	usageLimits := make([]render.UsageLimit, 0, 2)
+	if rateLimits.FiveHour != nil {
+		usageLimits = append(usageLimits, usageLimitSegment("5h", *rateLimits.FiveHour))
+	}
+	if rateLimits.SevenDay != nil {
+		usageLimits = append(usageLimits, usageLimitSegment("7d", *rateLimits.SevenDay))
+	}
+	return usageLimits
+}
+
+func usageLimitSegment(label string, rateLimit statuspayload.RateLimit) render.UsageLimit {
+	return render.UsageLimit{
+		Label:               label,
+		RemainingPercentage: remainingPercentage(rateLimit.UsedPercentage),
+	}
+}
+
+func remainingPercentage(usedPercentage float64) int {
+	remainingPercentage := 100.0 - usedPercentage
+	remainingPercentage = max(0.0, min(100.0, remainingPercentage))
+	return int(math.Round(remainingPercentage))
 }

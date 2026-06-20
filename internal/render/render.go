@@ -2,6 +2,7 @@
 package render
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -11,21 +12,30 @@ import (
 )
 
 const (
-	trackColor  = "#3A3A3A"
-	fullBlock   = "█"
-	minBarWidth = 3
-	maxBarWidth = 48
+	trackColor      = "#3A3A3A"
+	fullBlock       = "█"
+	minBarWidth     = 3
+	maxBarWidth     = 48
+	suffixSeparator = " · "
 )
 
 var partialBlocks = []string{" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}
 
+// UsageLimit contains one optional remaining-usage segment.
+type UsageLimit struct {
+	Label               string
+	RemainingPercentage int
+}
+
 // Line builds the complete status line.
-func Line(used int, ceiling int, cost float64, width int) string {
+func Line(used int, ceiling int, cost float64, width int, usageLimits ...UsageLimit) string {
 	ceiling = max(ceiling, used)
 
 	label := display.HumanTokens(used) + " "
-	suffix := " " + display.HumanTokens(ceiling) + " · " + display.Money(cost)
+	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
 	barWidth := clampBarWidth(width - lipgloss.Width(label) - lipgloss.Width(suffix))
+	suffix = suffixWithUsageLimits(label, suffix, barWidth, width, usageLimits)
+	barWidth = clampBarWidth(width - lipgloss.Width(label) - lipgloss.Width(suffix))
 
 	ratio := 0.0
 	if ceiling > 0 {
@@ -34,6 +44,28 @@ func Line(used int, ceiling int, cost float64, width int) string {
 	ratio = min(1.0, max(0.0, ratio))
 
 	return label + bar(barWidth, ratio) + suffix
+}
+
+func suffixWithUsageLimits(
+	label string,
+	suffix string,
+	barWidth int,
+	width int,
+	usageLimits []UsageLimit,
+) string {
+	for _, usageLimit := range usageLimits {
+		nextSuffix := suffix + suffixSeparator + usageLimit.text()
+		lineWidth := lipgloss.Width(label) + barWidth + lipgloss.Width(nextSuffix)
+		if lineWidth > width {
+			break
+		}
+		suffix = nextSuffix
+	}
+	return suffix
+}
+
+func (usageLimit UsageLimit) text() string {
+	return usageLimit.Label + " " + strconv.Itoa(usageLimit.RemainingPercentage) + "%"
 }
 
 func clampBarWidth(width int) int {
