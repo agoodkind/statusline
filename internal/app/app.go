@@ -63,12 +63,13 @@ func usageLimitSegments(rateLimits statuspayload.RateLimits) []render.UsageLimit
 
 func usageLimitSegment(label string, rateLimit statuspayload.RateLimit) render.UsageLimit {
 	return render.UsageLimit{
-		Label:          label,
-		UsedPercentage: usedPercentagePercent(rateLimit.UsedPercentage),
+		Label:               label,
+		RemainingPercentage: remainingPercentage(rateLimit.UsedPercentage),
 	}
 }
 
-func usedPercentagePercent(usedPercentage float64) int {
-	usedPercentage = max(0.0, min(100.0, usedPercentage))
-	return int(math.Round(usedPercentage))
+func remainingPercentage(usedPercentage float64) int {
+	remainingPercentage := 100.0 - usedPercentage
+	remainingPercentage = max(0.0, min(100.0, remainingPercentage))
+	return int(math.Round(remainingPercentage))
 }
