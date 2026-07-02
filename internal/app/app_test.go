@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 type failingReader struct{}
@@ -137,6 +139,44 @@ func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
 	wantSuffix := " 900 · $2.42\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
+	}
+}
+
+func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
+	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + 3 + lipgloss.Width(" 900 · $2.42")
+	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
+
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-4-8","display_name":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	wantPrefix := "Opus (1M) · 500 "
+	if !strings.HasPrefix(stdout.String(), wantPrefix) {
+		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
+	}
+}
+
+func TestRunDoesNotShortenDirectModelID(t *testing.T) {
+	mediumWidth := lipgloss.Width("Opus · 500 ") + 3 + lipgloss.Width(" 900 · $2.42")
+	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
+
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	if !strings.HasPrefix(stdout.String(), "500 ") {
+		t.Fatalf("stdout = %q, want model omitted without shortening", stdout.String())
+	}
+	if strings.Contains(stdout.String(), "Opus") {
+		t.Fatalf("stdout = %q, want direct model ID unchanged or omitted", stdout.String())
 	}
 }
 

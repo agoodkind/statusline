@@ -50,6 +50,16 @@ func TestModelLabelFallsBackToID(t *testing.T) {
 	if got := model.Label(); got != "claude-sonnet-4-1m" {
 		t.Fatalf("Label() = %q, want %q", got, "claude-sonnet-4-1m")
 	}
+	if model.UsesDisplayName() {
+		t.Fatal("UsesDisplayName() = true, want false")
+	}
+}
+
+func TestModelUsesDisplayName(t *testing.T) {
+	model := Model{ID: "claude-opus-4-8", DisplayName: "Opus"}
+	if !model.UsesDisplayName() {
+		t.Fatal("UsesDisplayName() = false, want true")
+	}
 }
 
 func TestContextWindowInputTokensFallsBackToCurrentUsage(t *testing.T) {

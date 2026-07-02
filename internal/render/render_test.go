@@ -8,7 +8,7 @@ import (
 )
 
 func TestLineRaisesCeilingToUsage(t *testing.T) {
-	got := Line(950_000, 872_000, 20.57, "", 80)
+	got := Line(950_000, 872_000, 20.57, "", false, 80)
 
 	if !strings.HasPrefix(got, "950k ") {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, "950k ")
@@ -19,7 +19,7 @@ func TestLineRaisesCeilingToUsage(t *testing.T) {
 }
 
 func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
-	got := Line(500_000, 950_000, 20.57, "Opus", 80)
+	got := Line(500_000, 950_000, 20.57, "Opus", true, 80)
 	wantPrefix := "Opus · 500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -29,8 +29,55 @@ func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
 	}
 }
 
+func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
+	model := "Opus (1M Context)"
+	label := "500k "
+	suffix := " 950k · $20.57"
+
+	fullWidth := lipgloss.Width("Opus (1M Context) · "+label) + minBarWidth + lipgloss.Width(suffix)
+	got := Line(500_000, 950_000, 20.57, model, true, fullWidth)
+	if !strings.HasPrefix(got, "Opus (1M Context) · 500k ") {
+		t.Fatalf("Line() prefix = %q, want full model label", got)
+	}
+
+	mediumWidth := lipgloss.Width("Opus (1M) · "+label) + minBarWidth + lipgloss.Width(suffix)
+	got = Line(500_000, 950_000, 20.57, model, true, mediumWidth)
+	if !strings.HasPrefix(got, "Opus (1M) · 500k ") {
+		t.Fatalf("Line() prefix = %q, want shortened context label", got)
+	}
+	if strings.Contains(got, "Context") {
+		t.Fatalf("Line() = %q, want Context omitted", got)
+	}
+
+	shortWidth := lipgloss.Width("Opus · "+label) + minBarWidth + lipgloss.Width(suffix)
+	got = Line(500_000, 950_000, 20.57, model, true, shortWidth)
+	if !strings.HasPrefix(got, "Opus · 500k ") {
+		t.Fatalf("Line() prefix = %q, want base model name", got)
+	}
+
+	got = Line(500_000, 950_000, 20.57, model, true, shortWidth-1)
+	if !strings.HasPrefix(got, "500k ") {
+		t.Fatalf("Line() prefix = %q, want model omitted", got)
+	}
+}
+
+func TestLineDoesNotShortenDirectModelID(t *testing.T) {
+	model := "Opus (1M Context)"
+	label := "500k "
+	suffix := " 950k · $20.57"
+
+	shortWidth := lipgloss.Width("Opus · "+label) + minBarWidth + lipgloss.Width(suffix)
+	got := Line(500_000, 950_000, 20.57, model, false, shortWidth)
+	if !strings.HasPrefix(got, "500k ") {
+		t.Fatalf("Line() prefix = %q, want model omitted", got)
+	}
+	if strings.Contains(got, "Opus") {
+		t.Fatalf("Line() = %q, want direct model ID unchanged or omitted", got)
+	}
+}
+
 func TestLineOmitsModelWhenColumnsAreTooNarrow(t *testing.T) {
-	got := Line(500_000, 950_000, 20.57, "claude-opus-4-extended-thinking", 50)
+	got := Line(500_000, 950_000, 20.57, "claude-opus-4-extended-thinking", false, 50)
 	wantPrefix := "500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -46,13 +93,13 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 		{Label: "7d", RemainingPercentage: 59},
 	}
 
-	got := Line(500_000, 950_000, 20.57, "", 80, usageLimits...)
+	got := Line(500_000, 950_000, 20.57, "", false, 80, usageLimits...)
 	wantSuffix := " 950k · $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
 
-	got = Line(500_000, 950_000, 20.57, "", 35, usageLimits...)
+	got = Line(500_000, 950_000, 20.57, "", false, 35, usageLimits...)
 	wantSuffix = " 950k · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
@@ -61,7 +108,7 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 		t.Fatalf("Line() = %q, want seven-day limit omitted", got)
 	}
 
-	got = Line(500_000, 950_000, 20.57, "", 90, usageLimits...)
+	got = Line(500_000, 950_000, 20.57, "", false, 90, usageLimits...)
 	wantSuffix = " 950k · $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
@@ -73,7 +120,7 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 		{Label: "5h", RemainingPercentage: 76},
 	}
 
-	got := Line(500_000, 950_000, 20.57, "Opus", 95, usageLimits...)
+	got := Line(500_000, 950_000, 20.57, "Opus", true, 95, usageLimits...)
 	wantPrefix := "Opus · 500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)

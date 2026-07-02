@@ -45,7 +45,15 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 	ceiling := tokenbudget.Ceiling(data)
 	width := terminal.Width(os.Stdout.Fd(), os.Stderr.Fd())
 	usageLimits := usageLimitSegments(data.RateLimits)
-	fmt.Fprintln(stdout, render.Line(used, ceiling, data.Cost.TotalCostUSD, data.Model.Label(), width, usageLimits...))
+	fmt.Fprintln(stdout, render.Line(
+		used,
+		ceiling,
+		data.Cost.TotalCostUSD,
+		data.Model.Label(),
+		data.Model.UsesDisplayName(),
+		width,
+		usageLimits...,
+	))
 
 	return successExitCode
 }
