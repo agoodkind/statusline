@@ -8,7 +8,7 @@ import (
 )
 
 func TestLineRaisesCeilingToUsage(t *testing.T) {
-	got := Line(950_000, 872_000, 20.57, 80)
+	got := Line(950_000, 872_000, 20.57, "", 80)
 
 	if !strings.HasPrefix(got, "950k ") {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, "950k ")
@@ -18,14 +18,42 @@ func TestLineRaisesCeilingToUsage(t *testing.T) {
 	}
 }
 
+func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
+	got := Line(500_000, 950_000, 20.57, "Opus", 80)
+	wantPrefix := "Opus · 500k "
+	if !strings.HasPrefix(got, wantPrefix) {
+		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
+	}
+	if !strings.HasSuffix(got, " 950k · $20.57") {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, " 950k · $20.57")
+	}
+}
+
+func TestLineOmitsModelWhenColumnsAreTooNarrow(t *testing.T) {
+	got := Line(500_000, 950_000, 20.57, "claude-opus-4-extended-thinking", 50)
+	wantPrefix := "500k "
+	if !strings.HasPrefix(got, wantPrefix) {
+		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
+	}
+	if strings.Contains(got, "claude-opus-4-extended-thinking") {
+		t.Fatalf("Line() = %q, want model omitted", got)
+	}
+}
+
 func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	usageLimits := []UsageLimit{
 		{Label: "5h", RemainingPercentage: 76},
 		{Label: "7d", RemainingPercentage: 59},
 	}
 
-	got := Line(500_000, 950_000, 20.57, 80, usageLimits...)
-	wantSuffix := " 950k · $20.57 · 5h 76%"
+	got := Line(500_000, 950_000, 20.57, "", 80, usageLimits...)
+	wantSuffix := " 950k · $20.57 · 5h 76% · 7d 59%"
+	if !strings.HasSuffix(got, wantSuffix) {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
+	}
+
+	got = Line(500_000, 950_000, 20.57, "", 35, usageLimits...)
+	wantSuffix = " 950k · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
@@ -33,8 +61,24 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 		t.Fatalf("Line() = %q, want seven-day limit omitted", got)
 	}
 
-	got = Line(500_000, 950_000, 20.57, 90, usageLimits...)
+	got = Line(500_000, 950_000, 20.57, "", 90, usageLimits...)
 	wantSuffix = " 950k · $20.57 · 5h 76% · 7d 59%"
+	if !strings.HasSuffix(got, wantSuffix) {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
+	}
+}
+
+func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
+	usageLimits := []UsageLimit{
+		{Label: "5h", RemainingPercentage: 76},
+	}
+
+	got := Line(500_000, 950_000, 20.57, "Opus", 95, usageLimits...)
+	wantPrefix := "Opus · 500k "
+	if !strings.HasPrefix(got, wantPrefix) {
+		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
+	}
+	wantSuffix := " 950k · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}

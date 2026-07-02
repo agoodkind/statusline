@@ -119,6 +119,48 @@ func TestRunIncludesRateLimitRemainingPercentagesWhenColumnsFit(t *testing.T) {
 	}
 }
 
+func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
+	t.Setenv("COLUMNS", "80")
+
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-4-8","display_name":"Opus"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	wantPrefix := "Opus · 500 "
+	if !strings.HasPrefix(stdout.String(), wantPrefix) {
+		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
+	}
+	wantSuffix := " 900 · $2.42\n"
+	if !strings.HasSuffix(stdout.String(), wantSuffix) {
+		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
+	}
+}
+
+func TestRunFallsBackToModelIDWhenDisplayNameIsAbsent(t *testing.T) {
+	t.Setenv("COLUMNS", "90")
+
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4-1m"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	wantPrefix := "claude-sonnet-4-1m · 500 "
+	if !strings.HasPrefix(stdout.String(), wantPrefix) {
+		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
+	}
+	wantSuffix := " 900 · $2.42\n"
+	if !strings.HasSuffix(stdout.String(), wantSuffix) {
+		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
+	}
+}
+
 func TestRemainingPercentageClampsAndRounds(t *testing.T) {
 	testCases := []struct {
 		name string

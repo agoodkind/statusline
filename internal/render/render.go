@@ -28,14 +28,14 @@ type UsageLimit struct {
 }
 
 // Line builds the complete status line.
-func Line(used int, ceiling int, cost float64, width int, usageLimits ...UsageLimit) string {
+func Line(used int, ceiling int, cost float64, model string, width int, usageLimits ...UsageLimit) string {
 	ceiling = max(ceiling, used)
 
 	label := display.HumanTokens(used) + " "
 	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
-	barWidth := clampBarWidth(width - lipgloss.Width(label) - lipgloss.Width(suffix))
-	suffix = suffixWithUsageLimits(label, suffix, barWidth, width, usageLimits)
-	barWidth = clampBarWidth(width - lipgloss.Width(label) - lipgloss.Width(suffix))
+	prefix := prefixWithModel(label, suffix, width, model)
+	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
+	barWidth := clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
 
 	ratio := 0.0
 	if ceiling > 0 {
@@ -43,19 +43,31 @@ func Line(used int, ceiling int, cost float64, width int, usageLimits ...UsageLi
 	}
 	ratio = min(1.0, max(0.0, ratio))
 
-	return label + bar(barWidth, ratio) + suffix
+	return prefix + bar(barWidth, ratio) + suffix
+}
+
+func prefixWithModel(label string, suffix string, width int, model string) string {
+	if model == "" {
+		return label
+	}
+
+	candidate := model + suffixSeparator + label
+	lineWidth := lipgloss.Width(candidate) + minBarWidth + lipgloss.Width(suffix)
+	if lineWidth > width {
+		return label
+	}
+	return candidate
 }
 
 func suffixWithUsageLimits(
-	label string,
+	prefix string,
 	suffix string,
-	barWidth int,
 	width int,
 	usageLimits []UsageLimit,
 ) string {
 	for _, usageLimit := range usageLimits {
 		nextSuffix := suffix + suffixSeparator + usageLimit.text()
-		lineWidth := lipgloss.Width(label) + barWidth + lipgloss.Width(nextSuffix)
+		lineWidth := lipgloss.Width(prefix) + minBarWidth + lipgloss.Width(nextSuffix)
 		if lineWidth > width {
 			break
 		}

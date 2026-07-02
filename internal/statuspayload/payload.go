@@ -34,6 +34,14 @@ type Model struct {
 	DisplayName string `json:"display_name"`
 }
 
+// Label returns the model name to show in the status line.
+func (model Model) Label() string {
+	if model.DisplayName != "" {
+		return model.DisplayName
+	}
+	return model.ID
+}
+
 // Workspace contains the current workspace paths and repository identity.
 type Workspace struct {
 	CurrentDir  string   `json:"current_dir"`
