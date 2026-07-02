@@ -34,9 +34,8 @@ func Line(used int, ceiling int, cost float64, model string, width int, usageLim
 	label := display.HumanTokens(used) + " "
 	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
 	prefix := prefixWithModel(label, suffix, width, model)
-	barWidth := clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
-	barWidth = clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
+	barWidth := clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
 
 	ratio := 0.0
 	if ceiling > 0 {
