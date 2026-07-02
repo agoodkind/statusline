@@ -1,8 +1,8 @@
 # statusline
 
-A status line for Claude Code: a context-usage bar with a smooth thermometer
-gradient, green when the context is nearly empty and warming to red as it fills,
-followed by the session cost.
+A status line for Claude Code: the active model, a context-usage bar with a
+smooth thermometer gradient, green when the context is nearly empty and warming
+to red as it fills, followed by the session cost.
 
 ```text
 Opus · 500k ██████████████░░░░░░░░░░░░░░ 950k · $20.57
