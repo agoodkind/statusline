@@ -47,7 +47,13 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	}
 
 	got := Line(500_000, 950_000, 20.57, "", 80, usageLimits...)
-	wantSuffix := " 950k · $20.57 · 5h 76%"
+	wantSuffix := " 950k · $20.57 · 5h 76% · 7d 59%"
+	if !strings.HasSuffix(got, wantSuffix) {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
+	}
+
+	got = Line(500_000, 950_000, 20.57, "", 35, usageLimits...)
+	wantSuffix = " 950k · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}

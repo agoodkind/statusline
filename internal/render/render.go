@@ -35,7 +35,7 @@ func Line(used int, ceiling int, cost float64, model string, width int, usageLim
 	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
 	prefix := prefixWithModel(label, suffix, width, model)
 	barWidth := clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
-	suffix = suffixWithUsageLimits(prefix, suffix, barWidth, width, usageLimits)
+	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
 	barWidth = clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
 
 	ratio := 0.0
@@ -63,13 +63,12 @@ func prefixWithModel(label string, suffix string, width int, model string) strin
 func suffixWithUsageLimits(
 	prefix string,
 	suffix string,
-	barWidth int,
 	width int,
 	usageLimits []UsageLimit,
 ) string {
 	for _, usageLimit := range usageLimits {
 		nextSuffix := suffix + suffixSeparator + usageLimit.text()
-		lineWidth := lipgloss.Width(prefix) + barWidth + lipgloss.Width(nextSuffix)
+		lineWidth := lipgloss.Width(prefix) + minBarWidth + lipgloss.Width(nextSuffix)
 		if lineWidth > width {
 			break
 		}
