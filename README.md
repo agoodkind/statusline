@@ -5,14 +5,15 @@ gradient, green when the context is nearly empty and warming to red as it fills,
 followed by the session cost.
 
 ```text
-500k ██████████████░░░░░░░░░░░░░░ 950k · $20.57
+Opus · 500k ██████████████░░░░░░░░░░░░░░ 950k · $20.57
 ```
 
 ## What it shows
 
-- Left: input tokens used in the current context window, read from Claude
-  Code's `context_window.total_input_tokens` field with a transcript fallback
-  when live token fields are absent.
+- Left: the current model from `model.display_name` (falling back to `model.id`
+  when the display name is absent), followed by input tokens used in the current
+  context window, read from Claude Code's `context_window.total_input_tokens`
+  field with a transcript fallback when live token fields are absent.
 - Bar: fills against the context limit, colored green to red by how full it is,
   ending on a fractional sub-cell so it grows smoothly.
 - Right: the context limit and the session cost from `cost.total_cost_usd`.

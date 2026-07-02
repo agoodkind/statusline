@@ -19,6 +19,9 @@ func TestUnmarshalPayloadReadsDocumentedStatusLineFields(t *testing.T) {
 	if got.Model.ID != "claude-opus-4-8" {
 		t.Fatalf("Model.ID = %q, want %q", got.Model.ID, "claude-opus-4-8")
 	}
+	if got.Model.Label() != "Opus" {
+		t.Fatalf("Model.Label() = %q, want %q", got.Model.Label(), "Opus")
+	}
 	if got.Workspace.Repo.Owner != "anthropics" {
 		t.Fatalf("Workspace.Repo.Owner = %q, want %q", got.Workspace.Repo.Owner, "anthropics")
 	}
@@ -39,6 +42,13 @@ func TestUnmarshalPayloadReadsDocumentedStatusLineFields(t *testing.T) {
 	}
 	if got.Worktree.Branch != "worktree-my-feature" {
 		t.Fatalf("Worktree.Branch = %q, want %q", got.Worktree.Branch, "worktree-my-feature")
+	}
+}
+
+func TestModelLabelFallsBackToID(t *testing.T) {
+	model := Model{ID: "claude-sonnet-4-1m"}
+	if got := model.Label(); got != "claude-sonnet-4-1m" {
+		t.Fatalf("Label() = %q, want %q", got, "claude-sonnet-4-1m")
 	}
 }
 
