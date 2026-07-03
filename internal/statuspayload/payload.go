@@ -42,6 +42,13 @@ func (model Model) Label() string {
 	return model.ID
 }
 
+// UsesDisplayName reports whether the renderer may shorten the model label.
+// Display names support progressive shortening; raw model.id values stay as-is or
+// are omitted when they do not fit.
+func (model Model) UsesDisplayName() bool {
+	return model.DisplayName != ""
+}
+
 // Workspace contains the current workspace paths and repository identity.
 type Workspace struct {
 	CurrentDir  string   `json:"current_dir"`
