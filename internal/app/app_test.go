@@ -12,6 +12,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const minStatuslineBarWidth = 3
+
 type failingReader struct{}
 
 func (failingReader) Read(_ []byte) (int, error) {
@@ -143,7 +145,7 @@ func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
 }
 
 func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + 3 + lipgloss.Width(" 900 · $2.42")
+	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + minStatuslineBarWidth + lipgloss.Width(" 900 · $2.42")
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-4-8","display_name":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
@@ -161,7 +163,7 @@ func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
 }
 
 func TestRunDoesNotShortenDirectModelID(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus · 500 ") + 3 + lipgloss.Width(" 900 · $2.42")
+	mediumWidth := lipgloss.Width("Opus · 500 ") + minStatuslineBarWidth + lipgloss.Width(" 900 · $2.42")
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
