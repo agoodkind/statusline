@@ -90,10 +90,8 @@ func TestRunDoesNotReduceContextLimitByMaxOutputTokens(t *testing.T) {
 	}
 }
 
-func TestRunFallsBackToLargeWindowWhenPayloadFlagsLargeContext(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "128000")
-
-	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4-1m"},"exceeds_200k_tokens":true,"context_window":{"total_input_tokens":0}}`
+func TestRunRendersExtendedContextWindowFromPayload(t *testing.T) {
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4-1m"},"context_window":{"total_input_tokens":0,"context_window_size":1000000}}`
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 

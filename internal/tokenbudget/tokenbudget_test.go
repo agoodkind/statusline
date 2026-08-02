@@ -65,31 +65,36 @@ func TestCeilingFallsBackToDefaultWindow(t *testing.T) {
 	}
 }
 
-func TestCeilingFallsBackToLargeWindowWhenPayloadFlagsLargeContext(t *testing.T) {
-	data := statuspayload.Payload{
-		Model:             statuspayload.Model{ID: "claude-fable-5"},
-		Exceeds200KTokens: true,
+// TestCeilingIgnoresExceeds200KTokens locks the documented meaning of the flag:
+// it reports usage against a fixed 200k threshold regardless of window size, so
+// it must not influence the ceiling in either direction.
+func TestCeilingIgnoresExceeds200KTokens(t *testing.T) {
+	tests := []struct {
+		name              string
+		exceeds200KTokens bool
+		contextWindowSize int
+		want              int
+	}{
+		{name: "flag set with a reported window", exceeds200KTokens: true, contextWindowSize: 1_000_000, want: 1_000_000},
+		{name: "flag clear with a reported window", exceeds200KTokens: false, contextWindowSize: 1_000_000, want: 1_000_000},
+		{name: "flag set without a reported window", exceeds200KTokens: true, want: 200_000},
+		{name: "flag clear without a reported window", exceeds200KTokens: false, want: 200_000},
 	}
 
-	got := Ceiling(data)
-	want := 1_000_000
-	if got != want {
-		t.Fatalf("Ceiling() = %d, want %d", got, want)
-	}
-}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			data := statuspayload.Payload{
+				Model:             statuspayload.Model{ID: "claude-fable-5"},
+				Exceeds200KTokens: test.exceeds200KTokens,
+				ContextWindow: statuspayload.ContextWindow{
+					ContextWindowSize: test.contextWindowSize,
+				},
+			}
 
-func TestCeilingPrefersPayloadWindowOverLargeContextFlag(t *testing.T) {
-	data := statuspayload.Payload{
-		Model:             statuspayload.Model{ID: "claude-fable-5"},
-		Exceeds200KTokens: true,
-		ContextWindow: statuspayload.ContextWindow{
-			ContextWindowSize: 400_000,
-		},
-	}
-
-	got := Ceiling(data)
-	want := 400_000
-	if got != want {
-		t.Fatalf("Ceiling() = %d, want %d", got, want)
+			got := Ceiling(data)
+			if got != test.want {
+				t.Fatalf("Ceiling() = %d, want %d", got, test.want)
+			}
+		})
 	}
 }
