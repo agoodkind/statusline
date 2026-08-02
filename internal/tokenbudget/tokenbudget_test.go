@@ -74,3 +74,26 @@ func TestContextWindowUsesDefaultWithoutMillionMarker(t *testing.T) {
 		t.Fatalf("ContextWindow() = %d, want %d", got, want)
 	}
 }
+
+func TestContextWindowRecognizesFableWithoutMillionMarker(t *testing.T) {
+	got := ContextWindow("claude-fable-5")
+	want := 950_000
+	if got != want {
+		t.Fatalf("ContextWindow() = %d, want %d", got, want)
+	}
+}
+
+func TestCeilingHonorsPayloadWindowLargerThanModelFallback(t *testing.T) {
+	data := statuspayload.Payload{
+		Model: statuspayload.Model{ID: "claude-fable-5"},
+		ContextWindow: statuspayload.ContextWindow{
+			ContextWindowSize: 1_000_000,
+		},
+	}
+
+	got := Ceiling(data)
+	want := 950_000
+	if got != want {
+		t.Fatalf("Ceiling() = %d, want %d", got, want)
+	}
+}

@@ -132,11 +132,34 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 }
 
 func TestClampBarWidthBounds(t *testing.T) {
-	if got := clampBarWidth(1); got != 3 {
-		t.Fatalf("clampBarWidth(1) = %d, want 3", got)
+	if got := clampBarWidth(1, 200); got != minBarWidth {
+		t.Fatalf("clampBarWidth(1, 200) = %d, want %d", got, minBarWidth)
 	}
-	if got := clampBarWidth(90); got != 48 {
-		t.Fatalf("clampBarWidth(90) = %d, want 48", got)
+	if got := clampBarWidth(180, 200); got != maxBarWidth {
+		t.Fatalf("clampBarWidth(180, 200) = %d, want %d", got, maxBarWidth)
+	}
+}
+
+func TestClampBarWidthScalesWithTerminalWidth(t *testing.T) {
+	if got := clampBarWidth(60, 40); got != 10 {
+		t.Fatalf("clampBarWidth(60, 40) = %d, want 10", got)
+	}
+	if got := clampBarWidth(60, 80); got != 20 {
+		t.Fatalf("clampBarWidth(60, 80) = %d, want 20", got)
+	}
+}
+
+func TestLineBarShrinksWithNarrowerTerminal(t *testing.T) {
+	fixed := lipgloss.Width("500k ") + lipgloss.Width(" 950k · $20.57")
+
+	wide := lipgloss.Width(Line(500_000, 950_000, 20.57, "", false, 120)) - fixed
+	if wide != maxBarWidth {
+		t.Fatalf("bar width at 120 columns = %d, want %d", wide, maxBarWidth)
+	}
+
+	narrow := lipgloss.Width(Line(500_000, 950_000, 20.57, "", false, 60)) - fixed
+	if narrow != 60/barWidthDivisor {
+		t.Fatalf("bar width at 60 columns = %d, want %d", narrow, 60/barWidthDivisor)
 	}
 }
 

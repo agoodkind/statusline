@@ -12,10 +12,13 @@ import (
 )
 
 const (
-	trackColor      = "#3A3A3A"
-	fullBlock       = "█"
+	trackColor = "#3A3A3A"
+	fullBlock  = "█"
+	// The bar takes a share of the terminal up to a hard ceiling, so it stays
+	// proportionate on narrow terminals and never dominates wide ones.
 	minBarWidth     = 3
-	maxBarWidth     = 48
+	maxBarWidth     = 24
+	barWidthDivisor = 4
 	suffixSeparator = " · "
 )
 
@@ -43,7 +46,8 @@ func Line(
 	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
 	prefix := prefixWithModel(label, suffix, width, model, shortenModel)
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
-	barWidth := clampBarWidth(width - lipgloss.Width(prefix) - lipgloss.Width(suffix))
+	available := width - lipgloss.Width(prefix) - lipgloss.Width(suffix)
+	barWidth := clampBarWidth(available, width)
 
 	ratio := 0.0
 	if ceiling > 0 {
@@ -97,8 +101,9 @@ func (usageLimit UsageLimit) text() string {
 	return usageLimit.Label + " " + strconv.Itoa(usageLimit.RemainingPercentage) + "%"
 }
 
-func clampBarWidth(width int) int {
-	return max(minBarWidth, min(maxBarWidth, width))
+func clampBarWidth(available int, terminalWidth int) int {
+	ceiling := min(maxBarWidth, terminalWidth/barWidthDivisor)
+	return max(minBarWidth, min(ceiling, available))
 }
 
 func bar(width int, ratio float64) string {

@@ -7,17 +7,18 @@ import (
 )
 
 const (
-	coolHue        = 140.0
-	warmHue        = 0.0
-	fillSaturation = 0.65
-	fillValue      = 0.95
-	fullRGBValue   = 255
+	rainbowStartHue = 280.0
+	rainbowEndHue   = 0.0
+	fillSaturation  = 0.65
+	fillValue       = 0.95
+	fullRGBValue    = 255
 )
 
-// HexForRatio maps a fill position in [0,1] to a green-to-red hex color.
+// HexForRatio maps a fill position in [0,1] to a hex color on a full rainbow
+// sweep: purple and blue at the left, then cyan, green, and yellow, to red.
 func HexForRatio(position float64) string {
 	position = max(0, min(1, position))
-	hue := coolHue + (warmHue-coolHue)*position
+	hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
 	red, green, blue := hsvToRGB(hue, fillSaturation, fillValue)
 	return fmt.Sprintf("#%02X%02X%02X", red, green, blue)
 }
