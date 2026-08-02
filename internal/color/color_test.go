@@ -37,12 +37,17 @@ func TestHexForRatioReturnsHexTriplet(t *testing.T) {
 	}
 }
 
+// cellPosition mirrors how the renderer samples the gradient: once per cell, at
+// the cell's centre. Comparing anything else measures a step no viewer sees.
+func cellPosition(cell int) float64 {
+	return (float64(cell) + 0.5) / float64(barCellCount)
+}
+
 func TestHexForRatioStepsSmoothlyAcrossAFullBar(t *testing.T) {
-	previousRed, previousGreen, previousBlue := parseHex(t, HexForRatio(0))
+	previousRed, previousGreen, previousBlue := parseHex(t, HexForRatio(cellPosition(0)))
 
 	for cell := 1; cell < barCellCount; cell++ {
-		position := (float64(cell) + 0.5) / float64(barCellCount)
-		hex := HexForRatio(position)
+		hex := HexForRatio(cellPosition(cell))
 		red, green, blue := parseHex(t, hex)
 
 		steps := []struct {
@@ -94,18 +99,14 @@ func TestHexForRatioSweepsPurpleBlueGreenRed(t *testing.T) {
 	}
 }
 
-func TestOklchToRGBStaysInGamut(t *testing.T) {
+// TestFillColorStaysInGamut guards the gradient against clamping. A clamped
+// color flattens against its neighbour, which is the banding this sweep exists
+// to avoid, so chroma and lightness must stay inside sRGB at every hue.
+func TestFillColorStaysInGamut(t *testing.T) {
 	for cell := range barCellCount {
-		position := (float64(cell) + 0.5) / float64(barCellCount)
-		hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
-		red, green, blue := oklchToRGB(hue, fillChroma, fillLightness)
-
-		channels := map[string]int{"red": red, "green": green, "blue": blue}
-		for name, value := range channels {
-			if value <= 0 || value >= fullRGBValue {
-				t.Fatalf("hue %.1f clipped %s to %d, want strictly inside 0..%d",
-					hue, name, value, fullRGBValue)
-			}
+		hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*cellPosition(cell)
+		if got := fillColor(hue); !got.IsValid() {
+			t.Fatalf("fillColor(%.1f) = %v, want a color inside sRGB", hue, got)
 		}
 	}
 }

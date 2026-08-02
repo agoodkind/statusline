@@ -23,20 +23,6 @@ func TestCeilingUsesPayloadContextWindowSizeWithoutOutputReserve(t *testing.T) {
 	}
 }
 
-func TestCeilingDoesNotRender872KForOneMillionModelWith128KOutputReserve(t *testing.T) {
-	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "128000")
-
-	data := statuspayload.Payload{
-		Model: statuspayload.Model{ID: "claude-sonnet-4-1m"},
-	}
-
-	got := Ceiling(data)
-	want := 950_000
-	if got != want {
-		t.Fatalf("Ceiling() = %d, want %d", got, want)
-	}
-}
-
 func TestCeilingHonorsFullMillionPayloadWindow(t *testing.T) {
 	data := statuspayload.Payload{
 		Model: statuspayload.Model{ID: "claude-opus-4-8[1m]"},
@@ -52,43 +38,37 @@ func TestCeilingHonorsFullMillionPayloadWindow(t *testing.T) {
 	}
 }
 
-func TestCeilingHonorsPayloadWindowSmallerThanPracticalLimit(t *testing.T) {
+func TestCeilingHonorsPayloadWindowSmallerThanDefault(t *testing.T) {
 	data := statuspayload.Payload{
 		Model: statuspayload.Model{ID: "claude-opus-4-8[1m]"},
 		ContextWindow: statuspayload.ContextWindow{
-			ContextWindowSize: 400_000,
+			ContextWindowSize: 120_000,
 		},
 	}
 
 	got := Ceiling(data)
-	want := 400_000
+	want := 120_000
 	if got != want {
 		t.Fatalf("Ceiling() = %d, want %d", got, want)
 	}
 }
 
-func TestContextWindowUsesDefaultWithoutMillionMarker(t *testing.T) {
-	got := ContextWindow("claude-sonnet-4")
+func TestCeilingFallsBackToDefaultWindow(t *testing.T) {
+	data := statuspayload.Payload{
+		Model: statuspayload.Model{ID: "claude-sonnet-4"},
+	}
+
+	got := Ceiling(data)
 	want := 200_000
 	if got != want {
-		t.Fatalf("ContextWindow() = %d, want %d", got, want)
+		t.Fatalf("Ceiling() = %d, want %d", got, want)
 	}
 }
 
-func TestContextWindowRecognizesFableWithoutMillionMarker(t *testing.T) {
-	got := ContextWindow("claude-fable-5")
-	want := 950_000
-	if got != want {
-		t.Fatalf("ContextWindow() = %d, want %d", got, want)
-	}
-}
-
-func TestCeilingHonorsPayloadWindowLargerThanModelFallback(t *testing.T) {
+func TestCeilingFallsBackToLargeWindowWhenPayloadFlagsLargeContext(t *testing.T) {
 	data := statuspayload.Payload{
-		Model: statuspayload.Model{ID: "claude-fable-5"},
-		ContextWindow: statuspayload.ContextWindow{
-			ContextWindowSize: 1_000_000,
-		},
+		Model:             statuspayload.Model{ID: "claude-fable-5"},
+		Exceeds200KTokens: true,
 	}
 
 	got := Ceiling(data)
@@ -98,13 +78,17 @@ func TestCeilingHonorsPayloadWindowLargerThanModelFallback(t *testing.T) {
 	}
 }
 
-func TestCeilingFallsBackToModelWindowWithoutPayloadSize(t *testing.T) {
+func TestCeilingPrefersPayloadWindowOverLargeContextFlag(t *testing.T) {
 	data := statuspayload.Payload{
-		Model: statuspayload.Model{ID: "claude-fable-5"},
+		Model:             statuspayload.Model{ID: "claude-fable-5"},
+		Exceeds200KTokens: true,
+		ContextWindow: statuspayload.ContextWindow{
+			ContextWindowSize: 400_000,
+		},
 	}
 
 	got := Ceiling(data)
-	want := 950_000
+	want := 400_000
 	if got != want {
 		t.Fatalf("Ceiling() = %d, want %d", got, want)
 	}

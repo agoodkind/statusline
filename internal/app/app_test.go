@@ -90,10 +90,10 @@ func TestRunDoesNotReduceContextLimitByMaxOutputTokens(t *testing.T) {
 	}
 }
 
-func TestRunFallsBackToPracticalMillionTokenLimit(t *testing.T) {
+func TestRunFallsBackToLargeWindowWhenPayloadFlagsLargeContext(t *testing.T) {
 	t.Setenv("CLAUDE_CODE_MAX_OUTPUT_TOKENS", "128000")
 
-	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4-1m"},"context_window":{"total_input_tokens":0}}`
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4-1m"},"exceeds_200k_tokens":true,"context_window":{"total_input_tokens":0}}`
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
@@ -101,8 +101,22 @@ func TestRunFallsBackToPracticalMillionTokenLimit(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
-	if !strings.HasSuffix(stdout.String(), " 950k · $2.42\n") {
-		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " 950k · $2.42\\n")
+	if !strings.HasSuffix(stdout.String(), " 1.0M · $2.42\n") {
+		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " 1.0M · $2.42\\n")
+	}
+}
+
+func TestRunFallsBackToDefaultWindowWithoutPayloadWindow(t *testing.T) {
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-sonnet-4"},"context_window":{"total_input_tokens":0}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	if !strings.HasSuffix(stdout.String(), " 200k · $2.42\n") {
+		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " 200k · $2.42\\n")
 	}
 }
 
