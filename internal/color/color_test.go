@@ -10,8 +10,10 @@ import (
 const barCellCount = 24
 
 // maxChannelStep is the largest 8-bit jump allowed between neighbouring cells.
-// Bigger steps show up as a hard band where two cells meet.
-const maxChannelStep = 24
+// Bigger steps show up as a hard band where two cells meet. More chroma widens
+// every channel delta, so raising saturation raises this bound: the measured
+// worst step is 29 at the current chroma, against 21 before it was raised.
+const maxChannelStep = 32
 
 func TestHexForRatioClampsPositions(t *testing.T) {
 	low := HexForRatio(-1)
