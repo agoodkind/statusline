@@ -7,19 +7,36 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func TestLineRaisesCeilingToUsage(t *testing.T) {
-	got := Line(950_000, 872_000, 20.57, "", false, 80)
+// testStatus builds the status every label test shares: 500k of a 950k window,
+// with the ratio supplied separately the way Claude Code supplies it.
+func testStatus(model string, shortenModel bool) Status {
+	return Status{
+		UsedTokens:   500_000,
+		WindowTokens: 950_000,
+		UsedRatio:    0.5263,
+		CostUSD:      20.57,
+		Model:        model,
+		ShortenModel: shortenModel,
+	}
+}
+
+// TestLineReportsUsageAndWindowSeparately checks that a usage figure above the
+// window is printed as sent. Claude Code owns both numbers, so the status line
+// must not quietly reconcile them.
+func TestLineReportsUsageAndWindowSeparately(t *testing.T) {
+	status := Status{UsedTokens: 950_000, WindowTokens: 872_000, UsedRatio: 1.09, CostUSD: 20.57}
+	got := Line(status, 80)
 
 	if !strings.HasPrefix(got, "950k ") {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, "950k ")
 	}
-	if !strings.HasSuffix(got, " 950k · $20.57") {
-		t.Fatalf("Line() suffix = %q, want suffix %q", got, " 950k · $20.57")
+	if !strings.HasSuffix(got, " 872k · $20.57") {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, " 872k · $20.57")
 	}
 }
 
 func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
-	got := Line(500_000, 950_000, 20.57, "Opus", true, 80)
+	got := Line(testStatus("Opus", true), 80)
 	wantPrefix := "Opus · 500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -35,13 +52,13 @@ func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
 	suffix := " 950k · $20.57"
 
 	fullWidth := lipgloss.Width("Opus (1M Context) · "+label) + minBarWidth + lipgloss.Width(suffix)
-	got := Line(500_000, 950_000, 20.57, model, true, fullWidth)
+	got := Line(testStatus(model, true), fullWidth)
 	if !strings.HasPrefix(got, "Opus (1M Context) · 500k ") {
 		t.Fatalf("Line() prefix = %q, want full model label", got)
 	}
 
 	mediumWidth := lipgloss.Width("Opus (1M) · "+label) + minBarWidth + lipgloss.Width(suffix)
-	got = Line(500_000, 950_000, 20.57, model, true, mediumWidth)
+	got = Line(testStatus(model, true), mediumWidth)
 	if !strings.HasPrefix(got, "Opus (1M) · 500k ") {
 		t.Fatalf("Line() prefix = %q, want shortened context label", got)
 	}
@@ -50,12 +67,12 @@ func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
 	}
 
 	shortWidth := lipgloss.Width("Opus · "+label) + minBarWidth + lipgloss.Width(suffix)
-	got = Line(500_000, 950_000, 20.57, model, true, shortWidth)
+	got = Line(testStatus(model, true), shortWidth)
 	if !strings.HasPrefix(got, "Opus · 500k ") {
 		t.Fatalf("Line() prefix = %q, want base model name", got)
 	}
 
-	got = Line(500_000, 950_000, 20.57, model, true, shortWidth-1)
+	got = Line(testStatus(model, true), shortWidth-1)
 	if !strings.HasPrefix(got, "500k ") {
 		t.Fatalf("Line() prefix = %q, want model omitted", got)
 	}
@@ -67,7 +84,7 @@ func TestLineDoesNotShortenDirectModelID(t *testing.T) {
 	suffix := " 950k · $20.57"
 
 	shortWidth := lipgloss.Width("Opus · "+label) + minBarWidth + lipgloss.Width(suffix)
-	got := Line(500_000, 950_000, 20.57, model, false, shortWidth)
+	got := Line(testStatus(model, false), shortWidth)
 	if !strings.HasPrefix(got, "500k ") {
 		t.Fatalf("Line() prefix = %q, want model omitted", got)
 	}
@@ -77,7 +94,7 @@ func TestLineDoesNotShortenDirectModelID(t *testing.T) {
 }
 
 func TestLineOmitsModelWhenColumnsAreTooNarrow(t *testing.T) {
-	got := Line(500_000, 950_000, 20.57, "claude-opus-4-extended-thinking", false, 50)
+	got := Line(testStatus("claude-opus-4-extended-thinking", false), 50)
 	wantPrefix := "500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -93,13 +110,13 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 		{Label: "7d", RemainingPercentage: 59},
 	}
 
-	got := Line(500_000, 950_000, 20.57, "", false, 80, usageLimits...)
+	got := Line(testStatus("", false), 80, usageLimits...)
 	wantSuffix := " 950k · $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
 
-	got = Line(500_000, 950_000, 20.57, "", false, 35, usageLimits...)
+	got = Line(testStatus("", false), 35, usageLimits...)
 	wantSuffix = " 950k · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
@@ -108,7 +125,7 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 		t.Fatalf("Line() = %q, want seven-day limit omitted", got)
 	}
 
-	got = Line(500_000, 950_000, 20.57, "", false, 90, usageLimits...)
+	got = Line(testStatus("", false), 90, usageLimits...)
 	wantSuffix = " 950k · $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
@@ -120,7 +137,7 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 		{Label: "5h", RemainingPercentage: 76},
 	}
 
-	got := Line(500_000, 950_000, 20.57, "Opus", true, 95, usageLimits...)
+	got := Line(testStatus("Opus", true), 95, usageLimits...)
 	wantPrefix := "Opus · 500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -132,11 +149,34 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 }
 
 func TestClampBarWidthBounds(t *testing.T) {
-	if got := clampBarWidth(1); got != 3 {
-		t.Fatalf("clampBarWidth(1) = %d, want 3", got)
+	if got := clampBarWidth(1, 200); got != minBarWidth {
+		t.Fatalf("clampBarWidth(1, 200) = %d, want %d", got, minBarWidth)
 	}
-	if got := clampBarWidth(90); got != 48 {
-		t.Fatalf("clampBarWidth(90) = %d, want 48", got)
+	if got := clampBarWidth(180, 200); got != maxBarWidth {
+		t.Fatalf("clampBarWidth(180, 200) = %d, want %d", got, maxBarWidth)
+	}
+}
+
+func TestClampBarWidthScalesWithTerminalWidth(t *testing.T) {
+	if got := clampBarWidth(60, 40); got != 10 {
+		t.Fatalf("clampBarWidth(60, 40) = %d, want 10", got)
+	}
+	if got := clampBarWidth(60, 80); got != 20 {
+		t.Fatalf("clampBarWidth(60, 80) = %d, want 20", got)
+	}
+}
+
+func TestLineBarShrinksWithNarrowerTerminal(t *testing.T) {
+	fixed := lipgloss.Width("500k ") + lipgloss.Width(" 950k · $20.57")
+
+	wide := lipgloss.Width(Line(testStatus("", false), 120)) - fixed
+	if wide != maxBarWidth {
+		t.Fatalf("bar width at 120 columns = %d, want %d", wide, maxBarWidth)
+	}
+
+	narrow := lipgloss.Width(Line(testStatus("", false), 60)) - fixed
+	if narrow != 60/barWidthDivisor {
+		t.Fatalf("bar width at 60 columns = %d, want %d", narrow, 60/barWidthDivisor)
 	}
 }
 
