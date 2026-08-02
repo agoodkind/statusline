@@ -37,7 +37,7 @@ func TestCeilingDoesNotRender872KForOneMillionModelWith128KOutputReserve(t *test
 	}
 }
 
-func TestCeilingClampsMillionModelPayloadToPracticalLimit(t *testing.T) {
+func TestCeilingHonorsFullMillionPayloadWindow(t *testing.T) {
 	data := statuspayload.Payload{
 		Model: statuspayload.Model{ID: "claude-opus-4-8[1m]"},
 		ContextWindow: statuspayload.ContextWindow{
@@ -46,7 +46,7 @@ func TestCeilingClampsMillionModelPayloadToPracticalLimit(t *testing.T) {
 	}
 
 	got := Ceiling(data)
-	want := 950_000
+	want := 1_000_000
 	if got != want {
 		t.Fatalf("Ceiling() = %d, want %d", got, want)
 	}
@@ -89,6 +89,18 @@ func TestCeilingHonorsPayloadWindowLargerThanModelFallback(t *testing.T) {
 		ContextWindow: statuspayload.ContextWindow{
 			ContextWindowSize: 1_000_000,
 		},
+	}
+
+	got := Ceiling(data)
+	want := 1_000_000
+	if got != want {
+		t.Fatalf("Ceiling() = %d, want %d", got, want)
+	}
+}
+
+func TestCeilingFallsBackToModelWindowWithoutPayloadSize(t *testing.T) {
+	data := statuspayload.Payload{
+		Model: statuspayload.Model{ID: "claude-fable-5"},
 	}
 
 	got := Ceiling(data)

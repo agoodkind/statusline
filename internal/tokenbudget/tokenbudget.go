@@ -10,7 +10,6 @@ import (
 const (
 	defaultContextWindow       = 200_000
 	practicalMillionTokenLimit = 950_000
-	millionTokenWindow         = 1_000_000
 )
 
 // millionTokenModelMarkers are substrings of model ids whose context window is a
@@ -18,18 +17,14 @@ const (
 var millionTokenModelMarkers = []string{"[1m]", "1m", "fable", "mythos"}
 
 // Ceiling returns the prompt/context display limit for the status-line payload.
-// A live window reported by the payload wins, because it reflects the session's
-// actual limit; a full million-token window is displayed as the 950,000
-// practical ceiling. Without a reported window the model id decides.
+// The window the payload reports is authoritative, because it is the session's
+// live limit. The model id only decides when the payload reports no window.
 func Ceiling(data statuspayload.Payload) int {
 	size := data.ContextWindow.ContextWindowSize
-	if size <= 0 {
-		return ContextWindow(data.Model.ID)
+	if size > 0 {
+		return size
 	}
-	if size >= millionTokenWindow {
-		return practicalMillionTokenLimit
-	}
-	return size
+	return ContextWindow(data.Model.ID)
 }
 
 // ContextWindow returns the fallback context limit for the given model id.

@@ -5,6 +5,14 @@ import (
 	"testing"
 )
 
+// barCellCount is the widest bar the renderer draws, so it is the tightest
+// spacing the gradient has to stay smooth across.
+const barCellCount = 24
+
+// maxChannelStep is the largest 8-bit jump allowed between neighbouring cells.
+// Bigger steps show up as a hard band where two cells meet.
+const maxChannelStep = 24
+
 func TestHexForRatioClampsPositions(t *testing.T) {
 	low := HexForRatio(-1)
 	zero := HexForRatio(0)
@@ -29,6 +37,38 @@ func TestHexForRatioReturnsHexTriplet(t *testing.T) {
 	}
 }
 
+func TestHexForRatioStepsSmoothlyAcrossAFullBar(t *testing.T) {
+	previousRed, previousGreen, previousBlue := parseHex(t, HexForRatio(0))
+
+	for cell := 1; cell < barCellCount; cell++ {
+		position := (float64(cell) + 0.5) / float64(barCellCount)
+		hex := HexForRatio(position)
+		red, green, blue := parseHex(t, hex)
+
+		steps := []struct {
+			channel  string
+			previous int
+			current  int
+		}{
+			{channel: "red", previous: previousRed, current: red},
+			{channel: "green", previous: previousGreen, current: green},
+			{channel: "blue", previous: previousBlue, current: blue},
+		}
+		for _, step := range steps {
+			delta := step.current - step.previous
+			if delta < 0 {
+				delta = -delta
+			}
+			if delta > maxChannelStep {
+				t.Fatalf("cell %d %s jumped %d (from %d to %d, %q), want at most %d",
+					cell, step.channel, delta, step.previous, step.current, hex, maxChannelStep)
+			}
+		}
+
+		previousRed, previousGreen, previousBlue = red, green, blue
+	}
+}
+
 func TestHexForRatioSweepsPurpleBlueGreenRed(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -36,8 +76,8 @@ func TestHexForRatioSweepsPurpleBlueGreenRed(t *testing.T) {
 		dominant string
 	}{
 		{name: "purple at the left edge", position: 0, dominant: "purple"},
-		{name: "blue just after the left edge", position: 40.0 / 280.0, dominant: "blue"},
-		{name: "green in the middle", position: 160.0 / 280.0, dominant: "green"},
+		{name: "blue just after the left edge", position: 0.2, dominant: "blue"},
+		{name: "green past the middle", position: 0.62, dominant: "green"},
 		{name: "red at the right edge", position: 1, dominant: "red"},
 	}
 
@@ -51,6 +91,22 @@ func TestHexForRatioSweepsPurpleBlueGreenRed(t *testing.T) {
 					test.position, hex, red, green, blue, test.dominant)
 			}
 		})
+	}
+}
+
+func TestOklchToRGBStaysInGamut(t *testing.T) {
+	for cell := range barCellCount {
+		position := (float64(cell) + 0.5) / float64(barCellCount)
+		hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
+		red, green, blue := oklchToRGB(hue, fillChroma, fillLightness)
+
+		channels := map[string]int{"red": red, "green": green, "blue": blue}
+		for name, value := range channels {
+			if value <= 0 || value >= fullRGBValue {
+				t.Fatalf("hue %.1f clipped %s to %d, want strictly inside 0..%d",
+					hue, name, value, fullRGBValue)
+			}
+		}
 	}
 }
 
@@ -79,21 +135,4 @@ func dominantChannel(red int, green int, blue int) string {
 		return "green"
 	}
 	return "red"
-}
-
-func TestHSVToRGBPrimaryColors(t *testing.T) {
-	red, green, blue := hsvToRGB(0, 1, 1)
-	if red != 255 || green != 0 || blue != 0 {
-		t.Fatalf("hsvToRGB(0, 1, 1) = (%d, %d, %d), want (255, 0, 0)", red, green, blue)
-	}
-
-	red, green, blue = hsvToRGB(120, 1, 1)
-	if red != 0 || green != 255 || blue != 0 {
-		t.Fatalf("hsvToRGB(120, 1, 1) = (%d, %d, %d), want (0, 255, 0)", red, green, blue)
-	}
-
-	red, green, blue = hsvToRGB(240, 1, 1)
-	if red != 0 || green != 0 || blue != 255 {
-		t.Fatalf("hsvToRGB(240, 1, 1) = (%d, %d, %d), want (0, 0, 255)", red, green, blue)
-	}
 }
