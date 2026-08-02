@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# Repo post-commit: rebuild and atomically install the statusline binary to the
-# stable location. Dispatched by the user-level ~/.git-hooks/post-commit runner,
-# which is itself chained from ~/.dotfiles/git-global-hooks via chain_hook.
+# Repo post-commit: rebuild and install the statusline binary to the stable
+# location. Dispatched by the user-level ~/.git-hooks/post-commit runner, which
+# is itself chained from ~/.dotfiles/git-global-hooks via chain_hook.
+#
+# The go-makefile engine owns the destination (INSTALL_DIR, defaulting to
+# $XDG_BIN_HOME or ~/.local/bin), the copy-to-temp-then-rename that keeps the
+# many Claude instances exec'ing this binary from ever seeing a torn file, and
+# macOS codesigning.
 set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
-exec "$repo_root/scripts/deploy-statusline.sh" "$@"
+exec make -C "$repo_root" install
