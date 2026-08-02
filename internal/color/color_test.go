@@ -121,6 +121,11 @@ func TestRedEndOutSaturatesFlatLightness(t *testing.T) {
 	}
 }
 
+// lightnessTolerance keeps the endpoint check off exact float equality. Go
+// permits fusing a multiply and an add into one FMA instruction, so the ramp's
+// final value can differ in the last bits between architectures.
+const lightnessTolerance = 1e-12
+
 // TestLightnessHoldsBeforeTheKnee keeps the ramp confined to the warm end, so
 // the rest of the sweep is unaffected by it.
 func TestLightnessHoldsBeforeTheKnee(t *testing.T) {
@@ -129,8 +134,8 @@ func TestLightnessHoldsBeforeTheKnee(t *testing.T) {
 			t.Fatalf("lightnessAt(%v) = %v, want %v", position, got, baseLightness)
 		}
 	}
-	if got := lightnessAt(1); got != endLightness {
-		t.Fatalf("lightnessAt(1) = %v, want %v", got, endLightness)
+	if got := lightnessAt(1); math.Abs(got-endLightness) > lightnessTolerance {
+		t.Fatalf("lightnessAt(1) = %v, want %v within %v", got, endLightness, lightnessTolerance)
 	}
 }
 

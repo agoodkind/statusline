@@ -50,9 +50,17 @@ type Status struct {
 // Line builds the complete status line.
 func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	label := display.HumanTokens(status.UsedTokens) + " "
-	suffix := " " + display.HumanTokens(status.WindowTokens) +
-		suffixSeparator + display.Money(status.CostUSD)
+	suffix := windowAndCost(status)
 	prefix := prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
+
+	// The window size is dropped from the suffix only once the prefix that
+	// actually rendered is known to carry it. A narrow terminal can shorten the
+	// model label or drop it entirely, and the figure has to survive that.
+	if display.TokensAppearIn(prefix, status.WindowTokens) {
+		suffix = " " + display.Money(status.CostUSD)
+		prefix = prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
+	}
+
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
 	available := width - lipgloss.Width(prefix) - lipgloss.Width(suffix)
 	barWidth := clampBarWidth(available, width)
@@ -63,6 +71,12 @@ func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	ratio := min(1.0, max(0.0, status.UsedRatio))
 
 	return prefix + bar(barWidth, ratio) + suffix
+}
+
+// windowAndCost is the suffix carrying both the window size and the cost.
+func windowAndCost(status Status) string {
+	return " " + display.HumanTokens(status.WindowTokens) +
+		suffixSeparator + display.Money(status.CostUSD)
 }
 
 func prefixWithModel(label string, suffix string, width int, model string, shortenModel bool) string {
