@@ -30,30 +30,31 @@ type UsageLimit struct {
 	RemainingPercentage int
 }
 
-// Line builds the complete status line.
-func Line(
-	used int,
-	ceiling int,
-	cost float64,
-	model string,
-	shortenModel bool,
-	width int,
-	usageLimits ...UsageLimit,
-) string {
-	ceiling = max(ceiling, used)
+// Status carries the values one status line reports, taken from the fields
+// Claude Code sends rather than derived from each other.
+type Status struct {
+	UsedTokens   int
+	WindowTokens int
+	UsedRatio    float64
+	CostUSD      float64
+	Model        string
+	ShortenModel bool
+}
 
-	label := display.HumanTokens(used) + " "
-	suffix := " " + display.HumanTokens(ceiling) + suffixSeparator + display.Money(cost)
-	prefix := prefixWithModel(label, suffix, width, model, shortenModel)
+// Line builds the complete status line.
+func Line(status Status, width int, usageLimits ...UsageLimit) string {
+	label := display.HumanTokens(status.UsedTokens) + " "
+	suffix := " " + display.HumanTokens(status.WindowTokens) +
+		suffixSeparator + display.Money(status.CostUSD)
+	prefix := prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
 	available := width - lipgloss.Width(prefix) - lipgloss.Width(suffix)
 	barWidth := clampBarWidth(available, width)
 
-	ratio := 0.0
-	if ceiling > 0 {
-		ratio = float64(used) / float64(ceiling)
-	}
-	ratio = min(1.0, max(0.0, ratio))
+	// The bar cannot draw past its own ends, so the ratio is bounded for
+	// drawing. This bounds the drawing only; it does not adjust the reported
+	// figures.
+	ratio := min(1.0, max(0.0, status.UsedRatio))
 
 	return prefix + bar(barWidth, ratio) + suffix
 }

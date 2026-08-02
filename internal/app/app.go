@@ -13,8 +13,6 @@ import (
 	"goodkind.io/statusline/internal/render"
 	"goodkind.io/statusline/internal/statuspayload"
 	"goodkind.io/statusline/internal/terminal"
-	"goodkind.io/statusline/internal/tokenbudget"
-	"goodkind.io/statusline/internal/transcript"
 )
 
 const (
@@ -38,22 +36,17 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 		return failureExitCode
 	}
 
-	used := data.ContextWindow.InputTokens()
-	if !data.ContextWindow.HasInputTokens() {
-		used = transcript.Used(data.TranscriptPath)
-	}
-	ceiling := tokenbudget.Ceiling(data)
 	width := terminal.Width(os.Stdout.Fd(), os.Stderr.Fd())
 	usageLimits := usageLimitSegments(data.RateLimits)
-	fmt.Fprintln(stdout, render.Line(
-		used,
-		ceiling,
-		data.Cost.TotalCostUSD,
-		data.Model.Label(),
-		data.Model.UsesDisplayName(),
-		width,
-		usageLimits...,
-	))
+	status := render.Status{
+		UsedTokens:   data.ContextWindow.TotalInputTokens,
+		WindowTokens: data.ContextWindow.ContextWindowSize,
+		UsedRatio:    data.ContextWindow.UsedRatio(),
+		CostUSD:      data.Cost.TotalCostUSD,
+		Model:        data.Model.Label(),
+		ShortenModel: data.Model.UsesDisplayName(),
+	}
+	fmt.Fprintln(stdout, render.Line(status, width, usageLimits...))
 
 	return successExitCode
 }

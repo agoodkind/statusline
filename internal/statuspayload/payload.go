@@ -6,6 +6,9 @@ import (
 	"fmt"
 )
 
+// percentageScale converts a documented 0-to-100 percentage into a 0-to-1 ratio.
+const percentageScale = 100.0
+
 // Payload is the documented Claude Code status-line JSON sent on stdin.
 type Payload struct {
 	CWD               string        `json:"cwd"`
@@ -79,9 +82,13 @@ type Cost struct {
 	TotalLinesRemoved  int     `json:"total_lines_removed"`
 }
 
-// ContextWindow contains live context-window token data.
+// ContextWindow contains live context-window token data. Claude Code documents
+// TotalInputTokens as the tokens currently in the window, already including
+// cache reads and writes, and ContextWindowSize as the window maximum. Both are
+// always sent. UsedPercentage and RemainingPercentage may be null early in a
+// session.
 type ContextWindow struct {
-	TotalInputTokens    *int     `json:"total_input_tokens"`
+	TotalInputTokens    int      `json:"total_input_tokens"`
 	TotalOutputTokens   int      `json:"total_output_tokens"`
 	ContextWindowSize   int      `json:"context_window_size"`
 	UsedPercentage      *float64 `json:"used_percentage"`
@@ -145,22 +152,15 @@ type Worktree struct {
 	OriginalBranch string `json:"original_branch"`
 }
 
-// HasInputTokens reports whether the payload included live input-token data.
-func (contextWindow ContextWindow) HasInputTokens() bool {
-	return contextWindow.TotalInputTokens != nil || contextWindow.CurrentUsage != nil
-}
-
-// InputTokens returns the input-side context usage used for percentage math.
-func (contextWindow ContextWindow) InputTokens() int {
-	if contextWindow.TotalInputTokens != nil {
-		return *contextWindow.TotalInputTokens
-	}
-	if contextWindow.CurrentUsage == nil {
+// UsedRatio returns the share of the context window in use, from 0 to 1.
+// Claude Code pre-calculates UsedPercentage, so the status line reports that
+// figure rather than dividing token counts itself. The field is null early in a
+// session, which the Claude Code examples read as zero.
+func (contextWindow ContextWindow) UsedRatio() float64 {
+	if contextWindow.UsedPercentage == nil {
 		return 0
 	}
-	return contextWindow.CurrentUsage.InputTokens +
-		contextWindow.CurrentUsage.CacheCreationTokens +
-		contextWindow.CurrentUsage.CacheReadTokens
+	return *contextWindow.UsedPercentage / percentageScale
 }
 
 // UnmarshalPayload returns a status-line payload decoded from JSON bytes.
