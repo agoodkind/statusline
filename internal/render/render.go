@@ -12,8 +12,14 @@ import (
 )
 
 const (
-	trackColor = "#3A3A3A"
-	fullBlock  = "█"
+	trackColor    = "#3A3A3A"
+	fullBlock     = "█"
+	leftHalfBlock = "▌"
+	// A cell shows two colors, one per half, so positions are counted in
+	// halves rather than cells.
+	halvesPerCell = 2
+	leftHalf      = 0
+	rightHalf     = 1
 	// The bar takes a share of the terminal up to a hard ceiling, so it stays
 	// proportionate on narrow terminals and never dominates wide ones.
 	minBarWidth     = 3
@@ -44,9 +50,20 @@ type Status struct {
 // Line builds the complete status line.
 func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	label := display.HumanTokens(status.UsedTokens) + " "
-	suffix := " " + display.HumanTokens(status.WindowTokens) +
-		suffixSeparator + display.Money(status.CostUSD)
-	prefix := prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
+	suffix := windowAndCost(status)
+	modelLabel := modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
+
+	// The window size is dropped from the suffix only once the model label that
+	// actually rendered is known to state it. A narrow terminal can shorten that
+	// label or drop it entirely, and the figure has to survive that. Only the
+	// model label is tested: the usage figure beside it can equal the window
+	// size, and matching against that would drop the window on a full context.
+	if display.TokensAppearIn(modelLabel, status.WindowTokens) {
+		suffix = " " + display.Money(status.CostUSD)
+		modelLabel = modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
+	}
+
+	prefix := modelLabel + label
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
 	available := width - lipgloss.Width(prefix) - lipgloss.Width(suffix)
 	barWidth := clampBarWidth(available, width)
@@ -59,16 +76,26 @@ func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	return prefix + bar(barWidth, ratio) + suffix
 }
 
-func prefixWithModel(label string, suffix string, width int, model string, shortenModel bool) string {
+// windowAndCost is the suffix carrying both the window size and the cost.
+func windowAndCost(status Status) string {
+	return " " + display.HumanTokens(status.WindowTokens) +
+		suffixSeparator + display.Money(status.CostUSD)
+}
+
+// modelPrefix returns the widest model label that leaves room for the rest of
+// the line, with its trailing separator. It returns an empty string when even
+// the shortest variant does not fit, so the caller can test the model label on
+// its own without the usage figure mixed in.
+func modelPrefix(label string, suffix string, width int, model string, shortenModel bool) string {
 	variants := modelLabelVariants(model, shortenModel)
 	for _, variant := range variants {
-		candidate := variant + suffixSeparator + label
-		lineWidth := lipgloss.Width(candidate) + minBarWidth + lipgloss.Width(suffix)
+		candidate := variant + suffixSeparator
+		lineWidth := lipgloss.Width(candidate+label) + minBarWidth + lipgloss.Width(suffix)
 		if lineWidth <= width {
 			return candidate
 		}
 	}
-	return label
+	return ""
 }
 
 func modelLabelVariants(model string, shortenModel bool) []string {
@@ -117,10 +144,11 @@ func bar(width int, ratio float64) string {
 	for i := range width {
 		switch {
 		case i < fullCells:
-			builder.WriteString(fillStyle(i, width).Render(fullBlock))
+			builder.WriteString(gradientCell(i, width))
 		case i == fullCells && fraction > 0:
 			blockIndex := max(int(fraction*float64(len(partialBlocks))), 1)
-			style := fillStyle(i, width).Background(lipgloss.Color(trackColor))
+			style := fillStyle(halfPosition(i, leftHalf, width)).
+				Background(lipgloss.Color(trackColor))
 			builder.WriteString(style.Render(partialBlocks[blockIndex]))
 		default:
 			builder.WriteString(track.Render(fullBlock))
@@ -129,7 +157,26 @@ func bar(width int, ratio float64) string {
 	return builder.String()
 }
 
-func fillStyle(index int, width int) lipgloss.Style {
-	position := (float64(index) + 0.5) / float64(width)
+// gradientCell paints one filled cell with two colors. A left half block sets
+// the left half from the foreground and leaves the right half showing the
+// background, so a bar of N cells carries 2N colors. At the widths this bar
+// runs, that halves the perceptual distance between neighbouring colors, which
+// is what stops the sweep reading as a row of bands.
+func gradientCell(index int, width int) string {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color(color.HexForRatio(halfPosition(index, leftHalf, width)))).
+		Background(lipgloss.Color(color.HexForRatio(halfPosition(index, rightHalf, width)))).
+		Render(leftHalfBlock)
+}
+
+// halfPosition returns the gradient position at the centre of one half of a
+// cell. Sampling at the centre keeps the first and last colors inside the
+// sweep rather than at its extremes.
+func halfPosition(index int, half int, width int) float64 {
+	halves := halvesPerCell * width
+	return (float64(halvesPerCell*index+half) + 0.5) / float64(halves)
+}
+
+func fillStyle(position float64) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(lipgloss.Color(color.HexForRatio(position)))
 }

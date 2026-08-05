@@ -4,6 +4,7 @@ package display
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // HumanTokens formats a token count as a compact display string.
@@ -16,6 +17,18 @@ func HumanTokens(tokens int) string {
 	default:
 		return strconv.Itoa(tokens)
 	}
+}
+
+// TokensAppearIn reports whether text already states this token count, so a
+// caller can avoid printing the same figure twice. Claude Code writes the
+// window into the model name as "1M", while HumanTokens writes "1.0M", so the
+// comparison drops a trailing ".0" and ignores case.
+func TokensAppearIn(text string, tokens int) bool {
+	compact := strings.TrimSuffix(HumanTokens(tokens), ".0M")
+	if compact != HumanTokens(tokens) {
+		compact += "M"
+	}
+	return strings.Contains(strings.ToLower(text), strings.ToLower(compact))
 }
 
 // Money formats a dollar amount to whole cents.
