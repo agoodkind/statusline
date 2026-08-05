@@ -99,6 +99,29 @@ func TestRunDropsWindowSizeCarriedByTheModelName(t *testing.T) {
 	}
 }
 
+// TestRunKeepsWindowSizeOnAFullContextWindow guards the case where usage equals
+// the window. The usage figure beside the model label then reads the same as
+// the window size, and only the model label may decide whether the window is
+// stated twice.
+func TestRunKeepsWindowSizeOnAFullContextWindow(t *testing.T) {
+	t.Setenv("COLUMNS", "100")
+
+	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-5","display_name":"Opus 5"},"context_window":{"total_input_tokens":200000,"context_window_size":200000,"used_percentage":100}}`
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	exitCode := Run(strings.NewReader(input), &stdout, &stderr)
+	if exitCode != 0 {
+		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
+	}
+	if !strings.HasPrefix(stdout.String(), "Opus 5 · 200k ") {
+		t.Fatalf("stdout = %q, want the usage figure in the prefix", stdout.String())
+	}
+	if !strings.HasSuffix(stdout.String(), " 200k · $2.42\n") {
+		t.Fatalf("stdout = %q, want the window size kept", stdout.String())
+	}
+}
+
 // TestRunKeepsWindowSizeWhenTheModelLabelIsDropped covers the narrow terminal.
 // Once the label no longer fits, the window size is the only place the figure
 // can appear, so it must come back.

@@ -51,16 +51,19 @@ type Status struct {
 func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	label := display.HumanTokens(status.UsedTokens) + " "
 	suffix := windowAndCost(status)
-	prefix := prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
+	modelLabel := modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
 
-	// The window size is dropped from the suffix only once the prefix that
-	// actually rendered is known to carry it. A narrow terminal can shorten the
-	// model label or drop it entirely, and the figure has to survive that.
-	if display.TokensAppearIn(prefix, status.WindowTokens) {
+	// The window size is dropped from the suffix only once the model label that
+	// actually rendered is known to state it. A narrow terminal can shorten that
+	// label or drop it entirely, and the figure has to survive that. Only the
+	// model label is tested: the usage figure beside it can equal the window
+	// size, and matching against that would drop the window on a full context.
+	if display.TokensAppearIn(modelLabel, status.WindowTokens) {
 		suffix = " " + display.Money(status.CostUSD)
-		prefix = prefixWithModel(label, suffix, width, status.Model, status.ShortenModel)
+		modelLabel = modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
 	}
 
+	prefix := modelLabel + label
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
 	available := width - lipgloss.Width(prefix) - lipgloss.Width(suffix)
 	barWidth := clampBarWidth(available, width)
@@ -79,16 +82,20 @@ func windowAndCost(status Status) string {
 		suffixSeparator + display.Money(status.CostUSD)
 }
 
-func prefixWithModel(label string, suffix string, width int, model string, shortenModel bool) string {
+// modelPrefix returns the widest model label that leaves room for the rest of
+// the line, with its trailing separator. It returns an empty string when even
+// the shortest variant does not fit, so the caller can test the model label on
+// its own without the usage figure mixed in.
+func modelPrefix(label string, suffix string, width int, model string, shortenModel bool) string {
 	variants := modelLabelVariants(model, shortenModel)
 	for _, variant := range variants {
-		candidate := variant + suffixSeparator + label
-		lineWidth := lipgloss.Width(candidate) + minBarWidth + lipgloss.Width(suffix)
+		candidate := variant + suffixSeparator
+		lineWidth := lipgloss.Width(candidate+label) + minBarWidth + lipgloss.Width(suffix)
 		if lineWidth <= width {
 			return candidate
 		}
 	}
-	return label
+	return ""
 }
 
 func modelLabelVariants(model string, shortenModel bool) []string {
