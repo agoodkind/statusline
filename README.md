@@ -5,7 +5,7 @@ smooth thermometer gradient, green when the context is nearly empty and warming
 to red as it fills, followed by the session cost.
 
 ```text
-Opus · 500k ██████████████░░░░░░░░░░░░░░ 950k · $20.57
+Opus · 500k ██████████████░░░░░░░░░░░░░░ $20.57
 ```
 
 ## What it shows
@@ -13,18 +13,13 @@ Opus · 500k ██████████████░░░░░░░░�
 - Left: the current model from `model.display_name` (falling back to `model.id`
   when the display name is absent), followed by input tokens used in the current
   context window, read from Claude Code's `context_window.total_input_tokens`
-  field with a transcript fallback when live token fields are absent. Display
+  field. Display
   names shorten as the terminal narrows, for example `Opus (1M Context)` becomes
   `Opus (1M)` and then `Opus` before the model is omitted. Raw `model.id` values
   are shown as-is or omitted.
 - Bar: fills against the context limit, colored green to red by how full it is,
   ending on a fractional sub-cell so it grows smoothly.
-- Right: the context limit and the session cost from `cost.total_cost_usd`.
-
-The context-limit logic lives in `internal/tokenbudget`, which should be treated
-as the source of truth for context-window defaults. When usage exceeds the limit,
-the right number rises to match usage so the bar reads full and the left never
-exceeds the right.
+- Right: the session cost from `cost.total_cost_usd`.
 
 ## Build
 

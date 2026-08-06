@@ -40,7 +40,6 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 	usageLimits := usageLimitSegments(data.RateLimits)
 	status := render.Status{
 		UsedTokens:   data.ContextWindow.TotalInputTokens,
-		WindowTokens: data.ContextWindow.ContextWindowSize,
 		UsedRatio:    data.ContextWindow.UsedRatio(),
 		CostUSD:      data.Cost.TotalCostUSD,
 		Model:        data.Model.Label(),
