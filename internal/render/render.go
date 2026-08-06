@@ -40,7 +40,6 @@ type UsageLimit struct {
 // Claude Code sends rather than derived from each other.
 type Status struct {
 	UsedTokens   int
-	WindowTokens int
 	UsedRatio    float64
 	CostUSD      float64
 	Model        string
@@ -50,18 +49,8 @@ type Status struct {
 // Line builds the complete status line.
 func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	label := display.HumanTokens(status.UsedTokens) + " "
-	suffix := windowAndCost(status)
+	suffix := " " + display.Money(status.CostUSD)
 	modelLabel := modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
-
-	// The window size is dropped from the suffix only once the model label that
-	// actually rendered is known to state it. A narrow terminal can shorten that
-	// label or drop it entirely, and the figure has to survive that. Only the
-	// model label is tested: the usage figure beside it can equal the window
-	// size, and matching against that would drop the window on a full context.
-	if display.TokensAppearIn(modelLabel, status.WindowTokens) {
-		suffix = " " + display.Money(status.CostUSD)
-		modelLabel = modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
-	}
 
 	prefix := modelLabel + label
 	suffix = suffixWithUsageLimits(prefix, suffix, width, usageLimits)
@@ -74,12 +63,6 @@ func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	ratio := min(1.0, max(0.0, status.UsedRatio))
 
 	return prefix + bar(barWidth, ratio) + suffix
-}
-
-// windowAndCost is the suffix carrying both the window size and the cost.
-func windowAndCost(status Status) string {
-	return " " + display.HumanTokens(status.WindowTokens) +
-		suffixSeparator + display.Money(status.CostUSD)
 }
 
 // modelPrefix returns the widest model label that leaves room for the rest of

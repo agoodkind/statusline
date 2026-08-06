@@ -7,31 +7,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// testStatus builds the status every label test shares: 500k of a 950k window,
-// with the ratio supplied separately the way Claude Code supplies it.
+// testStatus builds the status every label test shares, with the ratio supplied
+// separately the way Claude Code supplies it.
 func testStatus(model string, shortenModel bool) Status {
 	return Status{
 		UsedTokens:   500_000,
-		WindowTokens: 950_000,
 		UsedRatio:    0.5263,
 		CostUSD:      20.57,
 		Model:        model,
 		ShortenModel: shortenModel,
-	}
-}
-
-// TestLineReportsUsageAndWindowSeparately checks that a usage figure above the
-// window is printed as sent. Claude Code owns both numbers, so the status line
-// must not quietly reconcile them.
-func TestLineReportsUsageAndWindowSeparately(t *testing.T) {
-	status := Status{UsedTokens: 950_000, WindowTokens: 872_000, UsedRatio: 1.09, CostUSD: 20.57}
-	got := Line(status, 80)
-
-	if !strings.HasPrefix(got, "950k ") {
-		t.Fatalf("Line() prefix = %q, want prefix %q", got, "950k ")
-	}
-	if !strings.HasSuffix(got, " 872k · $20.57") {
-		t.Fatalf("Line() suffix = %q, want suffix %q", got, " 872k · $20.57")
 	}
 }
 
@@ -41,15 +25,15 @@ func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
 	}
-	if !strings.HasSuffix(got, " 950k · $20.57") {
-		t.Fatalf("Line() suffix = %q, want suffix %q", got, " 950k · $20.57")
+	if !strings.HasSuffix(got, " $20.57") {
+		t.Fatalf("Line() suffix = %q, want suffix %q", got, " $20.57")
 	}
 }
 
 func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
 	model := "Opus (1M Context)"
 	label := "500k "
-	suffix := " 950k · $20.57"
+	suffix := " $20.57"
 
 	fullWidth := lipgloss.Width("Opus (1M Context) · "+label) + minBarWidth + lipgloss.Width(suffix)
 	got := Line(testStatus(model, true), fullWidth)
@@ -81,7 +65,7 @@ func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
 func TestLineDoesNotShortenDirectModelID(t *testing.T) {
 	model := "Opus (1M Context)"
 	label := "500k "
-	suffix := " 950k · $20.57"
+	suffix := " $20.57"
 
 	shortWidth := lipgloss.Width("Opus · "+label) + minBarWidth + lipgloss.Width(suffix)
 	got := Line(testStatus(model, false), shortWidth)
@@ -94,7 +78,7 @@ func TestLineDoesNotShortenDirectModelID(t *testing.T) {
 }
 
 func TestLineOmitsModelWhenColumnsAreTooNarrow(t *testing.T) {
-	got := Line(testStatus("claude-opus-4-extended-thinking", false), 50)
+	got := Line(testStatus("claude-opus-4-extended-thinking", false), 40)
 	wantPrefix := "500k "
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
@@ -111,13 +95,13 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	}
 
 	got := Line(testStatus("", false), 80, usageLimits...)
-	wantSuffix := " 950k · $20.57 · 5h 76% · 7d 59%"
+	wantSuffix := " $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
 
-	got = Line(testStatus("", false), 35, usageLimits...)
-	wantSuffix = " 950k · $20.57 · 5h 76%"
+	got = Line(testStatus("", false), 32, usageLimits...)
+	wantSuffix = " $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
@@ -126,7 +110,7 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	}
 
 	got = Line(testStatus("", false), 90, usageLimits...)
-	wantSuffix = " 950k · $20.57 · 5h 76% · 7d 59%"
+	wantSuffix = " $20.57 · 5h 76% · 7d 59%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
@@ -142,7 +126,7 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
 	}
-	wantSuffix := " 950k · $20.57 · 5h 76%"
+	wantSuffix := " $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
@@ -167,7 +151,7 @@ func TestClampBarWidthScalesWithTerminalWidth(t *testing.T) {
 }
 
 func TestLineBarShrinksWithNarrowerTerminal(t *testing.T) {
-	fixed := lipgloss.Width("500k ") + lipgloss.Width(" 950k · $20.57")
+	fixed := lipgloss.Width("500k ") + lipgloss.Width(" $20.57")
 
 	wide := lipgloss.Width(Line(testStatus("", false), 120)) - fixed
 	if wide != maxBarWidth {
