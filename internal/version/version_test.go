@@ -35,8 +35,7 @@ func TestString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Version, Commit, Dirty, BuildTime := tt.version, tt.commit, tt.dirty, tt.buildTime
-			restore := setFields(Version, Commit, Dirty, BuildTime)
+			restore := setFields(tt.version, tt.commit, tt.dirty, tt.buildTime)
 			defer restore()
 
 			if got := String(); got != tt.want {
