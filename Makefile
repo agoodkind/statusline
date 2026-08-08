@@ -8,6 +8,7 @@
 # Identity
 BINARY := statusline
 CMD    := ./cmd/statusline
+VPKG   := goodkind.io/statusline/internal/version
 
 # Pipeline modules. Add go-service.mk if this binary ships as a daemon and
 # set LAUNCHD_LABEL, SYSTEMD_UNIT, LOG_PATH before -include $(GO_MK).
