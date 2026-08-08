@@ -36,8 +36,8 @@ func TestRunShowsOnlyUsedContextTokens(t *testing.T) {
 	if !strings.HasPrefix(stdout.String(), "Fable · 500 ") {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), "Fable · 500 ")
 	}
-	if !strings.HasSuffix(stdout.String(), " $2.42\n") {
-		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " $2.42\\n")
+	if !strings.HasSuffix(stdout.String(), " · $2.42\n") {
+		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " · $2.42\\n")
 	}
 	if strings.Contains(stdout.String(), " 900 · $2.42") {
 		t.Fatalf("stdout = %q, want no context limit", stdout.String())
@@ -93,7 +93,7 @@ func TestRunIncludesRateLimitRemainingPercentagesWhenColumnsFit(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
-	wantSuffix := " $2.42 · 5h 76% · 7d 59%\n"
+	wantSuffix := " · $2.42 · 5h 76% · 7d 59%\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
 	}
@@ -114,14 +114,14 @@ func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
 	if !strings.HasPrefix(stdout.String(), wantPrefix) {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
 	}
-	wantSuffix := " $2.42\n"
+	wantSuffix := " · $2.42\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
 	}
 }
 
 func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + minStatuslineBarWidth + lipgloss.Width(" $2.42")
+	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + minStatuslineBarWidth + lipgloss.Width(" · $2.42")
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-4-8","display_name":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
@@ -139,7 +139,7 @@ func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
 }
 
 func TestRunDoesNotShortenDirectModelID(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus · 500 ") + minStatuslineBarWidth + lipgloss.Width(" $2.42")
+	mediumWidth := lipgloss.Width("Opus · 500 ") + minStatuslineBarWidth + lipgloss.Width(" · $2.42")
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
@@ -173,7 +173,7 @@ func TestRunFallsBackToModelIDWhenDisplayNameIsAbsent(t *testing.T) {
 	if !strings.HasPrefix(stdout.String(), wantPrefix) {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
 	}
-	wantSuffix := " $2.42\n"
+	wantSuffix := " · $2.42\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
 	}

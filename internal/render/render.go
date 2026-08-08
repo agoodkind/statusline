@@ -49,7 +49,7 @@ type Status struct {
 // Line builds the complete status line.
 func Line(status Status, width int, usageLimits ...UsageLimit) string {
 	label := display.HumanTokens(status.UsedTokens) + " "
-	suffix := " " + display.Money(status.CostUSD)
+	suffix := suffixSeparator + display.Money(status.CostUSD)
 	modelLabel := modelPrefix(label, suffix, width, status.Model, status.ShortenModel)
 
 	prefix := modelLabel + label
