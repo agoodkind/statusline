@@ -23,7 +23,7 @@ Opus · 500k ██████████████░░░░░░░░�
 
 ## Build
 
-This repo consumes [go-makefile](https://github.com/agoodkind/go-makefile) for
+This repository uses [go-makefile](https://github.com/agoodkind/go-makefile) for
 its build and lint pipeline.
 
 ```makefile
