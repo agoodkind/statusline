@@ -13,8 +13,8 @@ Opus · 500k ██████████████░░░░░░░░�
 - Left: the current model from `model.display_name` (falling back to `model.id`
   when the display name is absent), followed by input tokens used in the current
   context window, read from Claude Code's `context_window.total_input_tokens`
-  field. Display
-  names shorten as the terminal narrows, for example `Opus (1M Context)` becomes
+  field. Display names shorten as the terminal narrows, for example
+  `Opus (1M Context)` becomes
   `Opus (1M)` and then `Opus` before the model is omitted. Raw `model.id` values
   are shown as-is or omitted.
 - Bar: fills against the context limit, colored green to red by how full it is,
