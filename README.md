@@ -5,7 +5,7 @@ smooth thermometer gradient, green when the context is nearly empty and warming
 to red as it fills, followed by the session cost and remaining usage limits.
 
 ```text
-Opus · 500k ██████████████░░░░░░░░░░░░░░ $20.57
+Opus · 500k ██████████████░░░░░░░░░░░░░░ · $20.57 · 5h 76% · 7d 59%
 ```
 
 ## What it shows
