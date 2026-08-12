@@ -2,7 +2,7 @@
 
 A status line for Claude Code: the active model, a context-usage bar with a
 smooth thermometer gradient, green when the context is nearly empty and warming
-to red as it fills, followed by the session cost.
+to red as it fills, followed by the session cost and remaining usage limits.
 
 ```text
 Opus · 500k ██████████████░░░░░░░░░░░░░░ $20.57
@@ -19,7 +19,8 @@ Opus · 500k ██████████████░░░░░░░░�
   are shown as-is or omitted.
 - Bar: fills against the context limit, colored green to red by how full it is,
   ending on a fractional sub-cell so it grows smoothly.
-- Right: the session cost from `cost.total_cost_usd`.
+- Right: the session cost from `cost.total_cost_usd`, followed by the remaining
+  five-hour and seven-day usage limits when Claude Code provides them.
 
 ## Build
 
