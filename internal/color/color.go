@@ -71,6 +71,6 @@ func maxChroma(colorHue float64, colorLightness float64) float64 {
 			continue
 		}
 		upperBound = midpoint
-	} // binary search
-	return 0
+	}
+	return upperBound
 }
