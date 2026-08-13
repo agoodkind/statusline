@@ -9,9 +9,9 @@ import (
 // HumanTokens formats a token count as a compact display string.
 func HumanTokens(tokens int) string {
 	switch {
-	case tokens >= 1_000_000:
+	case tokens >= 1_000_000 || tokens <= -1_000_000:
 		return fmt.Sprintf("%.1fM", float64(tokens)/1_000_000)
-	case tokens >= 1_000:
+	case tokens >= 1_000 || tokens <= -1_000:
 		return fmt.Sprintf("%dk", tokens/1_000)
 	default:
 		return strconv.Itoa(tokens)

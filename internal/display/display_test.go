@@ -11,6 +11,8 @@ func TestHumanTokens(t *testing.T) {
 		{name: "plain", in: 999, want: "999"},
 		{name: "thousands", in: 91_000, want: "91k"},
 		{name: "millions", in: 1_000_000, want: "1.0M"},
+		{name: "negative thousands", in: -91_000, want: "-91k"},
+		{name: "negative millions", in: -1_000_000, want: "-1.0M"},
 	}
 
 	for _, testCase := range testCases {
