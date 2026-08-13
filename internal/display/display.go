@@ -20,5 +20,8 @@ func HumanTokens(tokens int) string {
 
 // Money formats a dollar amount to whole cents.
 func Money(usd float64) string {
+	if usd < 0 {
+		return fmt.Sprintf("-$%.2f", -usd)
+	}
 	return fmt.Sprintf("$%.2f", usd)
 }

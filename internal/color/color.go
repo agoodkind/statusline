@@ -1,11 +1,7 @@
 // Package color converts context-usage ratios into status-line colors.
 package color
 
-import (
-	"fmt"
-
-	"github.com/lucasb-eyer/go-colorful"
-)
+import "github.com/lucasb-eyer/go-colorful"
 
 // The gradient sweeps hue in CIE LCh, a perceptually uniform space. Each hue
 // takes the most chroma sRGB can hold at its lightness, so no hue is capped by
@@ -41,7 +37,7 @@ func HexForRatio(position float64) string {
 	position = max(0, min(1, position))
 	hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
 	lightness := lightnessAt(position)
-	return fmt.Sprintf("%s", colorful.Hcl(hue, maxChroma(hue, lightness), lightness).Clamped().Hex())
+	return colorful.Hcl(hue, maxChroma(hue, lightness), lightness).Clamped().Hex()
 }
 
 // lightnessAt holds the base lightness until the knee, then eases to the end
