@@ -70,5 +70,5 @@ func maxChroma(hue float64, lightness float64) float64 {
 			high = mid
 		}
 	}
-	return low
+	return high
 }
