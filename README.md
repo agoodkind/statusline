@@ -1,4 +1,4 @@
-# statusline
+# Statusline
 
 A status line for Claude Code: the active model, a context-usage bar with a
 smooth thermometer gradient, green when the context is nearly empty and warming
