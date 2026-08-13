@@ -11,7 +11,7 @@ func ModelLabelVariants(label string) []string {
 	variants := []string{label}
 	base, inner, hasParenthetical := splitTrailingParenthetical(label)
 	if !hasParenthetical {
-		return variants
+		return nil
 	}
 
 	if shortInner, ok := strings.CutSuffix(inner, " Context"); ok {
