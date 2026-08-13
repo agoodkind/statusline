@@ -9,6 +9,7 @@ func TestHumanTokens(t *testing.T) {
 		want string
 	}{
 		{name: "plain", in: 999, want: "999"},
+		{name: "negative plain", in: -999, want: "-999"},
 		{name: "thousands", in: 91_000, want: "91k"},
 		{name: "millions", in: 1_000_000, want: "1.0M"},
 		{name: "negative thousands", in: -91_000, want: "-91k"},
