@@ -60,12 +60,12 @@ func smoothStep(progress float64) float64 {
 // maxChroma returns the largest chroma that stays inside sRGB at this hue and
 // lightness. Anything larger clips, and a clipped color flattens against its
 // neighbour instead of advancing the gradient.
-func maxChroma(hue float64, lightness float64) float64 {
+func maxChroma(colorHue float64, colorLightness float64) float64 {
 	lowerBound := 0.0
 	upperBound := chromaSearchCeil
 	for range chromaSearchSteps {
 		midpoint := (lowerBound + upperBound) / 2
-		candidate := colorful.Hcl(hue, midpoint, lightness)
+		candidate := colorful.Hcl(colorHue, midpoint, colorLightness)
 		if candidate.IsValid() {
 			lowerBound = midpoint
 		} else {
