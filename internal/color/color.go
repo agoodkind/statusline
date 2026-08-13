@@ -61,13 +61,15 @@ func smoothStep(progress float64) float64 {
 // lightness. Anything larger clips, and a clipped color flattens against its
 // neighbour instead of advancing the gradient.
 func maxChroma(hue float64, lightness float64) float64 {
-	low, high := 0.0, chromaSearchCeil
+	lowerBound := 0.0
+	upperBound := chromaSearchCeil
 	for range chromaSearchSteps {
-		mid := (low + high) / 2
-		if colorful.Hcl(hue, mid, lightness).IsValid() {
-			low = mid
+		midpoint := (lowerBound + upperBound) / 2
+		candidate := colorful.Hcl(hue, midpoint, lightness)
+		if candidate.IsValid() {
+			lowerBound = midpoint
 		} else {
-			high = mid
+			upperBound = midpoint
 		}
 	}
 	return 0
