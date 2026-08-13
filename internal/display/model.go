@@ -5,7 +5,7 @@ import "strings"
 // ModelLabelVariants returns progressively shorter model labels for width fitting.
 func ModelLabelVariants(label string) []string {
 	if label == "" {
-		return nil
+		return []string{label}
 	}
 
 	variants := []string{label}
