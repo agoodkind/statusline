@@ -65,8 +65,8 @@ func maxChroma(colorHue float64, colorLightness float64) float64 {
 	invalidUpperBound := chromaSearchCeil
 	for attempt := 0; attempt < chromaSearchSteps; attempt++ {
 		midpoint := (lowerBound + invalidUpperBound) / 2
-		candidate := colorful.Hcl(colorHue, midpoint, colorLightness)
-		if candidate.IsValid() {
+		candidateColor := colorful.Hcl(colorHue, midpoint, colorLightness)
+		if candidateColor.IsValid() {
 			lowerBound = midpoint
 			continue
 		}
