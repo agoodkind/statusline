@@ -2,6 +2,8 @@
 package color
 
 import (
+	"fmt"
+
 	"github.com/lucasb-eyer/go-colorful"
 )
 
@@ -39,7 +41,7 @@ func HexForRatio(position float64) string {
 	position = max(0, min(1, position))
 	hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
 	lightness := lightnessAt(position)
-	return colorful.Hcl(hue, maxChroma(hue, lightness), lightness).Clamped().Hex()
+	return fmt.Sprintf("%s", colorful.Hcl(hue, maxChroma(hue, lightness), lightness).Clamped().Hex())
 }
 
 // lightnessAt holds the base lightness until the knee, then eases to the end
