@@ -63,14 +63,14 @@ func smoothStep(progress float64) float64 {
 func maxChroma(colorHue float64, colorLightness float64) float64 {
 	lowerBound := 0.0
 	upperBound := chromaSearchCeil
-	for range chromaSearchSteps {
+	for attempt := 0; attempt < chromaSearchSteps; attempt++ {
 		midpoint := (lowerBound + upperBound) / 2
 		candidate := colorful.Hcl(colorHue, midpoint, colorLightness)
 		if candidate.IsValid() {
 			lowerBound = midpoint
-		} else {
-			upperBound = midpoint
+			continue
 		}
-	}
+		upperBound = midpoint
+	} // binary search
 	return 0
 }
