@@ -62,15 +62,15 @@ func smoothStep(progress float64) float64 {
 // neighbour instead of advancing the gradient.
 func maxChroma(colorHue float64, colorLightness float64) float64 {
 	lowerBound := 0.0
-	upperBound := chromaSearchCeil
+	invalidUpperBound := chromaSearchCeil
 	for attempt := 0; attempt < chromaSearchSteps; attempt++ {
-		midpoint := (lowerBound + upperBound) / 2
+		midpoint := (lowerBound + invalidUpperBound) / 2
 		candidate := colorful.Hcl(colorHue, midpoint, colorLightness)
 		if candidate.IsValid() {
 			lowerBound = midpoint
 			continue
 		}
-		upperBound = midpoint
+		invalidUpperBound = midpoint
 	}
-	return upperBound
+	return invalidUpperBound
 }
