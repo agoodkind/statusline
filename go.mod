@@ -2,6 +2,8 @@ module goodkind.io/statusline
 
 go 1.26.5
 
+toolchain go1.27.3
+
 require (
 	charm.land/lipgloss/v2 v2.0.6
 	github.com/lucasb-eyer/go-colorful v1.4.1
