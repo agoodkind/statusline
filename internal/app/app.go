@@ -7,9 +7,6 @@ import (
 	"math"
 	"os"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/termenv"
-
 	"goodkind.io/statusline/internal/render"
 	"goodkind.io/statusline/internal/statuspayload"
 	"goodkind.io/statusline/internal/terminal"
@@ -22,8 +19,6 @@ const (
 
 // Run reads a status-line payload, renders one status line, and returns an exit code.
 func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
-	lipgloss.SetColorProfile(termenv.TrueColor)
-
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
 		fmt.Fprintf(stderr, "statusline: read stdin: %v\n", err)

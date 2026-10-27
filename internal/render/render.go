@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"goodkind.io/statusline/internal/color"
 	"goodkind.io/statusline/internal/display"
