@@ -34,14 +34,17 @@ func TestString(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			restore := setFields(tt.version, tt.commit, tt.dirty, tt.buildTime)
-			defer restore()
+		t.Run(
+			tt.name,
+			func(t *testing.T) {
+				restore := setFields(tt.version, tt.commit, tt.dirty, tt.buildTime)
+				defer restore()
 
-			if got := String(); got != tt.want {
-				t.Fatalf("String() = %q, want %q", got, tt.want)
-			}
-		})
+				if got := String(); got != tt.want {
+					t.Fatalf("String() = %q, want %q", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -51,6 +54,7 @@ func TestString(t *testing.T) {
 func setFields(version, commit, dirty, buildTime string) func() {
 	prevVersion, prevCommit, prevDirty, prevBuildTime := Version, Commit, Dirty, BuildTime
 	Version, Commit, Dirty, BuildTime = version, commit, dirty, buildTime
+
 	return func() {
 		Version, Commit, Dirty, BuildTime = prevVersion, prevCommit, prevDirty, prevBuildTime
 	}

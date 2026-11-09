@@ -14,12 +14,15 @@ func TestHumanTokens(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			got := HumanTokens(testCase.in)
-			if got != testCase.want {
-				t.Fatalf("HumanTokens() = %q, want %q", got, testCase.want)
-			}
-		})
+		t.Run(
+			testCase.name,
+			func(t *testing.T) {
+				got := HumanTokens(testCase.in)
+				if got != testCase.want {
+					t.Fatalf("HumanTokens() = %q, want %q", got, testCase.want)
+				}
+			},
+		)
 	}
 }
 

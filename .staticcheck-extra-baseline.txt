@@ -1,4 +1,5 @@
-# staticcheck-extra: generated_at=2026-11-08T23:08:08Z
+# staticcheck-extra: generated_at=2026-11-09T02:31:37Z
+cmd/statusline/main.go:13:1: commandentry: delegate implementation to an importable package [id=67df5b7229a19a840b6c866faee0881d:1]	# staticcheck-extra:first_added=2026-11-09T02:31:10Z last_seen=2026-11-09T02:31:10Z
 internal/app/app.go:20:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
 internal/color/color.go:36:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
 internal/display/display.go:9:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z

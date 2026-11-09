@@ -33,12 +33,15 @@ func TestRunShowsOnlyUsedContextTokens(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	if !strings.HasPrefix(stdout.String(), "Fable · 500 ") {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), "Fable · 500 ")
 	}
+
 	if !strings.HasSuffix(stdout.String(), " · $2.42\n") {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), " · $2.42\\n")
 	}
+
 	if strings.Contains(stdout.String(), " 900 · $2.42") {
 		t.Fatalf("stdout = %q, want no context limit", stdout.String())
 	}
@@ -58,6 +61,7 @@ func TestRunIgnoresTranscriptPath(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	if !strings.HasPrefix(stdout.String(), "0 ") {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), "0 ")
 	}
@@ -77,6 +81,7 @@ func TestRunFillsBarFromUsedPercentage(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	if strings.Contains(stdout.String(), trackColorSequence) {
 		t.Fatalf("stdout = %q, want a full bar with no unfilled cells", stdout.String())
 	}
@@ -93,6 +98,7 @@ func TestRunIncludesRateLimitRemainingPercentagesWhenColumnsFit(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	wantSuffix := " · $2.42 · 5h 76% · 7d 59%\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
@@ -110,10 +116,12 @@ func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	wantPrefix := "Opus · 500 "
 	if !strings.HasPrefix(stdout.String(), wantPrefix) {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
 	}
+
 	wantSuffix := " · $2.42\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
@@ -121,7 +129,9 @@ func TestRunIncludesModelNameWhenColumnsFit(t *testing.T) {
 }
 
 func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + minStatuslineBarWidth + lipgloss.Width(" · $2.42")
+	mediumWidth := lipgloss.Width("Opus (1M) · 500 ") + minStatuslineBarWidth + lipgloss.Width(
+		" · $2.42",
+	)
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"claude-opus-4-8","display_name":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
@@ -132,6 +142,7 @@ func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	wantPrefix := "Opus (1M) · 500 "
 	if !strings.HasPrefix(stdout.String(), wantPrefix) {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
@@ -139,7 +150,9 @@ func TestRunShortensModelContextLabelWhenColumnsAreNarrow(t *testing.T) {
 }
 
 func TestRunDoesNotShortenDirectModelID(t *testing.T) {
-	mediumWidth := lipgloss.Width("Opus · 500 ") + minStatuslineBarWidth + lipgloss.Width(" · $2.42")
+	mediumWidth := lipgloss.Width("Opus · 500 ") + minStatuslineBarWidth + lipgloss.Width(
+		" · $2.42",
+	)
 	t.Setenv("COLUMNS", strconv.Itoa(mediumWidth))
 
 	input := `{"cost":{"total_cost_usd":2.4193},"model":{"id":"Opus (1M Context)"},"context_window":{"total_input_tokens":500,"context_window_size":900}}`
@@ -150,9 +163,11 @@ func TestRunDoesNotShortenDirectModelID(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	if !strings.HasPrefix(stdout.String(), "500 ") {
 		t.Fatalf("stdout = %q, want model omitted without shortening", stdout.String())
 	}
+
 	if strings.Contains(stdout.String(), "Opus") {
 		t.Fatalf("stdout = %q, want direct model ID unchanged or omitted", stdout.String())
 	}
@@ -169,10 +184,12 @@ func TestRunFallsBackToModelIDWhenDisplayNameIsAbsent(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("Run() exitCode = %d, want 0, stderr %q", exitCode, stderr.String())
 	}
+
 	wantPrefix := "claude-sonnet-4-1m · 500 "
 	if !strings.HasPrefix(stdout.String(), wantPrefix) {
 		t.Fatalf("stdout = %q, want prefix %q", stdout.String(), wantPrefix)
 	}
+
 	wantSuffix := " · $2.42\n"
 	if !strings.HasSuffix(stdout.String(), wantSuffix) {
 		t.Fatalf("stdout = %q, want suffix %q", stdout.String(), wantSuffix)
@@ -191,12 +208,15 @@ func TestRemainingPercentageClampsAndRounds(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			got := remainingPercentage(testCase.used)
-			if got != testCase.want {
-				t.Fatalf("remainingPercentage() = %d, want %d", got, testCase.want)
-			}
-		})
+		t.Run(
+			testCase.name,
+			func(t *testing.T) {
+				got := remainingPercentage(testCase.used)
+				if got != testCase.want {
+					t.Fatalf("remainingPercentage() = %d, want %d", got, testCase.want)
+				}
+			},
+		)
 	}
 }
 
@@ -208,9 +228,11 @@ func TestRunReturnsErrorForInvalidJSON(t *testing.T) {
 	if exitCode != 1 {
 		t.Fatalf("Run() exitCode = %d, want 1", exitCode)
 	}
+
 	if stdout.String() != "" {
 		t.Fatalf("stdout = %q, want empty", stdout.String())
 	}
+
 	if !strings.Contains(stderr.String(), "statusline: json:") {
 		t.Fatalf("stderr = %q, want JSON error", stderr.String())
 	}
@@ -224,9 +246,11 @@ func TestRunReturnsErrorForStdinReadFailure(t *testing.T) {
 	if exitCode != 1 {
 		t.Fatalf("Run() exitCode = %d, want 1", exitCode)
 	}
+
 	if stdout.String() != "" {
 		t.Fatalf("stdout = %q, want empty", stdout.String())
 	}
+
 	if !strings.Contains(stderr.String(), "statusline: read stdin: read failed") {
 		t.Fatalf("stderr = %q, want stdin read error", stderr.String())
 	}
@@ -241,5 +265,6 @@ func writeTranscript(t *testing.T, inputTokens int) string {
 	if err != nil {
 		t.Fatalf("WriteFile() returned error: %v", err)
 	}
+
 	return path
 }
