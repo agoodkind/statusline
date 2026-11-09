@@ -78,6 +78,7 @@ func modelPrefix(label string, suffix string, width int, model string, shortenMo
 			return candidate
 		}
 	}
+
 	return ""
 }
 
@@ -85,9 +86,11 @@ func modelLabelVariants(model string, shortenModel bool) []string {
 	if model == "" {
 		return nil
 	}
+
 	if shortenModel {
 		return display.ModelLabelVariants(model)
 	}
+
 	return []string{model}
 }
 
@@ -103,8 +106,10 @@ func suffixWithUsageLimits(
 		if lineWidth > width {
 			break
 		}
+
 		suffix = nextSuffix
 	}
+
 	return suffix
 }
 
@@ -124,6 +129,7 @@ func bar(width int, ratio float64) string {
 	fraction := filledCells - float64(fullCells)
 
 	var builder strings.Builder
+
 	for i := range width {
 		switch {
 		case i < fullCells:
@@ -131,12 +137,15 @@ func bar(width int, ratio float64) string {
 		case i == fullCells && fraction > 0:
 			blockIndex := max(int(fraction*float64(len(partialBlocks))), 1)
 			style := fillStyle(halfPosition(i, leftHalf, width)).
-				Background(lipgloss.Color(trackColor))
+				Background(
+					lipgloss.Color(trackColor),
+				)
 			builder.WriteString(style.Render(partialBlocks[blockIndex]))
 		default:
 			builder.WriteString(track.Render(fullBlock))
 		}
 	}
+
 	return builder.String()
 }
 
@@ -147,9 +156,15 @@ func bar(width int, ratio float64) string {
 // is what stops the sweep reading as a row of bands.
 func gradientCell(index int, width int) string {
 	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color(color.HexForRatio(halfPosition(index, leftHalf, width)))).
-		Background(lipgloss.Color(color.HexForRatio(halfPosition(index, rightHalf, width)))).
-		Render(leftHalfBlock)
+		Foreground(
+			lipgloss.Color(color.HexForRatio(halfPosition(index, leftHalf, width))),
+		).
+		Background(
+			lipgloss.Color(color.HexForRatio(halfPosition(index, rightHalf, width))),
+		).
+		Render(
+			leftHalfBlock,
+		)
 }
 
 // halfPosition returns the gradient position at the centre of one half of a

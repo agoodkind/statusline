@@ -47,6 +47,7 @@ func TestHexForRatioReturnsHexTriplet(t *testing.T) {
 	if len(got) != 7 {
 		t.Fatalf("len(HexForRatio()) = %d, want 7", len(got))
 	}
+
 	if got[0] != '#' {
 		t.Fatalf("HexForRatio()[0] = %q, want #", got[0])
 	}
@@ -74,10 +75,17 @@ func TestHexForRatioStepsSmoothlyAcrossAFullBar(t *testing.T) {
 	if smallest <= 0 {
 		t.Fatalf("smallest step = %v, want a gradient that advances every color", smallest)
 	}
+
 	if ratio := largest / smallest; ratio > maxStepRatio {
-		t.Fatalf("step ratio = %.2f (largest %.1f, smallest %.1f), want at most %.2f",
-			ratio, largest, smallest, maxStepRatio)
+		t.Fatalf(
+			"step ratio = %.2f (largest %.1f, smallest %.1f), want at most %.2f",
+			ratio,
+			largest,
+			smallest,
+			maxStepRatio,
+		)
 	}
+
 	if average := total / float64(barColorCount-1); average > maxAverageStep {
 		t.Fatalf("average step = %.2f, want at most %.2f", average, maxAverageStep)
 	}
@@ -96,15 +104,25 @@ func TestHexForRatioSweepsPurpleBlueGreenRed(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			hex := HexForRatio(test.position)
-			red, green, blue := parseHex(t, hex)
-			got := dominantChannel(red, green, blue)
-			if got != test.dominant {
-				t.Fatalf("HexForRatio(%v) = %q (r=%d g=%d b=%d), want %s",
-					test.position, hex, red, green, blue, test.dominant)
-			}
-		})
+		t.Run(
+			test.name,
+			func(t *testing.T) {
+				hex := HexForRatio(test.position)
+				red, green, blue := parseHex(t, hex)
+				got := dominantChannel(red, green, blue)
+				if got != test.dominant {
+					t.Fatalf(
+						"HexForRatio(%v) = %q (r=%d g=%d b=%d), want %s",
+						test.position,
+						hex,
+						red,
+						green,
+						blue,
+						test.dominant,
+					)
+				}
+			},
+		)
 	}
 }
 
@@ -116,8 +134,11 @@ func TestRedEndOutSaturatesFlatLightness(t *testing.T) {
 	flat := maxChroma(rainbowEndHue, baseLightness)
 
 	if ramped <= flat {
-		t.Fatalf("red chroma ramped = %.2f, flat = %.2f, want the ramp to gain chroma",
-			ramped, flat)
+		t.Fatalf(
+			"red chroma ramped = %.2f, flat = %.2f, want the ramp to gain chroma",
+			ramped,
+			flat,
+		)
 	}
 }
 
@@ -134,6 +155,7 @@ func TestLightnessHoldsBeforeTheKnee(t *testing.T) {
 			t.Fatalf("lightnessAt(%v) = %v, want %v", position, got, baseLightness)
 		}
 	}
+
 	if got := lightnessAt(1); math.Abs(got-endLightness) > lightnessTolerance {
 		t.Fatalf("lightnessAt(1) = %v, want %v within %v", got, endLightness, lightnessTolerance)
 	}
@@ -148,8 +170,12 @@ func TestGradientStaysInGamut(t *testing.T) {
 		lightness := lightnessAt(position)
 		got := colorful.Hcl(hue, maxChroma(hue, lightness), lightness)
 		if !got.IsValid() {
-			t.Fatalf("color %d at position %.3f = %v, want a color inside sRGB",
-				index, position, got)
+			t.Fatalf(
+				"color %d at position %.3f = %v, want a color inside sRGB",
+				index,
+				position,
+				got,
+			)
 		}
 	}
 }
@@ -161,6 +187,7 @@ func colorAt(t *testing.T, index int) colorful.Color {
 	if err != nil {
 		t.Fatalf("Hex(%q) failed: %v", hex, err)
 	}
+
 	return parsed
 }
 
@@ -173,6 +200,7 @@ func parseHex(t *testing.T, hex string) (int, int, int) {
 	if err != nil {
 		t.Fatalf("Sscanf(%q) failed: %v", hex, err)
 	}
+
 	return red, green, blue
 }
 
@@ -183,10 +211,13 @@ func dominantChannel(red int, green int, blue int) string {
 		if red > green {
 			return "purple"
 		}
+
 		return "blue"
 	}
+
 	if green > red {
 		return "green"
 	}
+
 	return "red"
 }
