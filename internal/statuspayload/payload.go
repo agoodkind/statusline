@@ -42,6 +42,7 @@ func (model Model) Label() string {
 	if model.DisplayName != "" {
 		return model.DisplayName
 	}
+
 	return model.ID
 }
 
@@ -160,6 +161,7 @@ func (contextWindow ContextWindow) UsedRatio() float64 {
 	if contextWindow.UsedPercentage == nil {
 		return 0
 	}
+
 	return *contextWindow.UsedPercentage / percentageScale
 }
 
@@ -170,6 +172,7 @@ func UnmarshalPayload(raw []byte) (Payload, error) {
 	if err != nil {
 		return Payload{}, err
 	}
+
 	return payload, nil
 }
 
@@ -181,6 +184,8 @@ func (payload *Payload) UnmarshalJSON(raw []byte) error {
 	if err != nil {
 		return fmt.Errorf("unmarshal status payload: %w", err)
 	}
+
 	*payload = Payload(decoded)
+
 	return nil
 }

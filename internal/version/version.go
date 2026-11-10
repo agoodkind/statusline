@@ -18,13 +18,16 @@ func String() string {
 	if version == "" {
 		version = "dev"
 	}
+
 	commit := Commit
 	if commit == "" {
 		commit = "unknown"
 	}
+
 	buildTime := BuildTime
 	if buildTime == "" {
 		buildTime = "unknown"
 	}
+
 	return "statusline " + version + " (" + commit + ", built " + buildTime + ")"
 }

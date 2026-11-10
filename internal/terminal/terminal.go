@@ -16,15 +16,18 @@ func Width(fileDescriptors ...uintptr) int {
 	if width := columnsWidth(os.Getenv("COLUMNS")); width > 0 {
 		return width
 	}
+
 	for _, fileDescriptor := range fileDescriptors {
 		if fileDescriptor > uintptr(math.MaxInt) {
 			continue
 		}
+
 		width, _, err := term.GetSize(int(fileDescriptor))
 		if err == nil && width > 0 {
 			return width
 		}
 	}
+
 	return fallbackWidth
 }
 
@@ -33,5 +36,6 @@ func columnsWidth(value string) int {
 	if err != nil || width <= 0 {
 		return 0
 	}
+
 	return width
 }

@@ -24,6 +24,7 @@ func ModelLabelVariants(label string) []string {
 	if base != "" {
 		variants = append(variants, base)
 	}
+
 	return variants
 }
 
@@ -32,11 +33,13 @@ func splitTrailingParenthetical(label string) (base string, inner string, ok boo
 	if open < 0 {
 		return label, "", false
 	}
+
 	if !strings.HasSuffix(label, ")") {
 		return label, "", false
 	}
 
 	base = label[:open]
 	inner = label[open+2 : len(label)-1]
+
 	return base, inner, true
 }
