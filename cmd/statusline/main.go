@@ -15,6 +15,7 @@ func main() {
 		fmt.Fprintln(os.Stdout, version.String())
 		os.Exit(0)
 	}
+
 	slog.Debug("statusline render", slog.String("component", "statusline"))
 	os.Exit(app.Run(os.Stdin, os.Stdout, os.Stderr))
 }

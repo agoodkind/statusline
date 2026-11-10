@@ -50,9 +50,11 @@ func usageLimitSegments(rateLimits statuspayload.RateLimits) []render.UsageLimit
 	if rateLimits.FiveHour != nil {
 		usageLimits = append(usageLimits, usageLimitSegment("5h", *rateLimits.FiveHour))
 	}
+
 	if rateLimits.SevenDay != nil {
 		usageLimits = append(usageLimits, usageLimitSegment("7d", *rateLimits.SevenDay))
 	}
+
 	return usageLimits
 }
 
@@ -66,5 +68,6 @@ func usageLimitSegment(label string, rateLimit statuspayload.RateLimit) render.U
 func remainingPercentage(usedPercentage float64) int {
 	remainingPercentage := 100.0 - usedPercentage
 	remainingPercentage = max(0.0, min(100.0, remainingPercentage))
+
 	return int(math.Round(remainingPercentage))
 }

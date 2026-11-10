@@ -39,6 +39,7 @@ func HexForRatio(position float64) string {
 	position = max(0, min(1, position))
 	hue := rainbowStartHue + (rainbowEndHue-rainbowStartHue)*position
 	lightness := lightnessAt(position)
+
 	return colorful.Hcl(hue, maxChroma(hue, lightness), lightness).Clamped().Hex()
 }
 
@@ -48,7 +49,9 @@ func lightnessAt(position float64) float64 {
 	if position <= lightnessKnee {
 		return baseLightness
 	}
+
 	progress := (position - lightnessKnee) / (1 - lightnessKnee)
+
 	return baseLightness + (endLightness-baseLightness)*smoothStep(progress)
 }
 
@@ -62,6 +65,7 @@ func smoothStep(progress float64) float64 {
 // neighbour instead of advancing the gradient.
 func maxChroma(hue float64, lightness float64) float64 {
 	low, high := 0.0, chromaSearchCeil
+
 	for range chromaSearchSteps {
 		mid := (low + high) / 2
 		if colorful.Hcl(hue, mid, lightness).IsValid() {
@@ -70,5 +74,6 @@ func maxChroma(hue float64, lightness float64) float64 {
 			high = mid
 		}
 	}
+
 	return low
 }

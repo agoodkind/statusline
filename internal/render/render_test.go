@@ -25,6 +25,7 @@ func TestLineIncludesModelWhenColumnsFit(t *testing.T) {
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
 	}
+
 	if !strings.HasSuffix(got, " · $20.57") {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, " · $20.57")
 	}
@@ -46,6 +47,7 @@ func TestLineShortensDisplayModelLabelProgressively(t *testing.T) {
 	if !strings.HasPrefix(got, "Opus (1M) · 500k ") {
 		t.Fatalf("Line() prefix = %q, want shortened context label", got)
 	}
+
 	if strings.Contains(got, "Context") {
 		t.Fatalf("Line() = %q, want Context omitted", got)
 	}
@@ -72,6 +74,7 @@ func TestLineDoesNotShortenDirectModelID(t *testing.T) {
 	if !strings.HasPrefix(got, "500k ") {
 		t.Fatalf("Line() prefix = %q, want model omitted", got)
 	}
+
 	if strings.Contains(got, "Opus") {
 		t.Fatalf("Line() = %q, want direct model ID unchanged or omitted", got)
 	}
@@ -83,6 +86,7 @@ func TestLineOmitsModelWhenColumnsAreTooNarrow(t *testing.T) {
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
 	}
+
 	if strings.Contains(got, "claude-opus-4-extended-thinking") {
 		t.Fatalf("Line() = %q, want model omitted", got)
 	}
@@ -105,6 +109,7 @@ func TestLineAddsUsageLimitsProgressively(t *testing.T) {
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
 	}
+
 	if strings.Contains(got, "7d") {
 		t.Fatalf("Line() = %q, want seven-day limit omitted", got)
 	}
@@ -126,6 +131,7 @@ func TestLineShowsModelAndRateLimitsWhenColumnsFit(t *testing.T) {
 	if !strings.HasPrefix(got, wantPrefix) {
 		t.Fatalf("Line() prefix = %q, want prefix %q", got, wantPrefix)
 	}
+
 	wantSuffix := " · $20.57 · 5h 76%"
 	if !strings.HasSuffix(got, wantSuffix) {
 		t.Fatalf("Line() suffix = %q, want suffix %q", got, wantSuffix)
@@ -136,6 +142,7 @@ func TestClampBarWidthBounds(t *testing.T) {
 	if got := clampBarWidth(1, 200); got != minBarWidth {
 		t.Fatalf("clampBarWidth(1, 200) = %d, want %d", got, minBarWidth)
 	}
+
 	if got := clampBarWidth(180, 200); got != maxBarWidth {
 		t.Fatalf("clampBarWidth(180, 200) = %d, want %d", got, maxBarWidth)
 	}
@@ -145,6 +152,7 @@ func TestClampBarWidthScalesWithTerminalWidth(t *testing.T) {
 	if got := clampBarWidth(60, 40); got != 10 {
 		t.Fatalf("clampBarWidth(60, 40) = %d, want 10", got)
 	}
+
 	if got := clampBarWidth(60, 80); got != 20 {
 		t.Fatalf("clampBarWidth(60, 80) = %d, want 20", got)
 	}

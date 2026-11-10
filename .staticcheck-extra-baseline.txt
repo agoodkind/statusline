@@ -1,13 +1,13 @@
-# staticcheck-extra: generated_at=2026-11-09T13:09:19Z
-cmd/statusline/main.go:13:1: commandentry: delegate implementation to an importable package [id=67df5b7229a19a840b6c866faee0881d:1]	# staticcheck-extra:first_added=2026-11-09T02:31:10Z last_seen=2026-11-09T13:09:19Z
-internal/app/app.go:20:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/color/color.go:36:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/display/display.go:9:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/display/model.go:5:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/render/render.go:49:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/statuspayload/payload.go:48:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/terminal/terminal.go:14:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
-internal/version/version.go:13:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-08T23:08:08Z
+# staticcheck-extra: generated_at=2026-11-10T10:10:17Z
+cmd/statusline/main.go:13:1: commandentry: delegate implementation to an importable package [id=67df5b7229a19a840b6c866faee0881d:1]	# staticcheck-extra:first_added=2026-11-09T02:31:10Z last_seen=2026-11-10T10:10:17Z
+internal/app/app.go:20:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/color/color.go:36:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/display/display.go:9:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/display/model.go:5:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/render/render.go:49:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/statuspayload/payload.go:49:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/terminal/terminal.go:14:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
+internal/version/version.go:13:1: doc_structure: add an introduction, explanation, and example or layout	# staticcheck-extra:first_added=2026-11-08T23:08:08Z last_seen=2026-11-10T10:10:17Z
 internal/app/app_test.go:182:6: Test TestRemainingPercentageClampsAndRounds calls the unexported function remainingPercentage of the package under test. A test must enter through the exported API or the built command. Call the exported entry point that uses remainingPercentage.	# staticcheck-extra:first_added=2026-10-04T21:52:00Z last_seen=2026-10-04T21:52:00Z
 internal/color/color_test.go:114:6: Test TestRedEndOutSaturatesFlatLightness calls the unexported function maxChroma of the package under test. A test must enter through the exported API or the built command. Call the exported entry point that uses maxChroma.	# staticcheck-extra:first_added=2026-10-04T21:52:00Z last_seen=2026-10-04T21:52:00Z
 internal/color/color_test.go:131:6: Test TestLightnessHoldsBeforeTheKnee calls the unexported function lightnessAt of the package under test. A test must enter through the exported API or the built command. Call the exported entry point that uses lightnessAt.	# staticcheck-extra:first_added=2026-10-04T21:52:00Z last_seen=2026-10-04T21:52:00Z

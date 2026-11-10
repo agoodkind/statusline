@@ -1,4 +1,25 @@
-# golangci-lint: generated_at=2026-11-09T13:09:26Z
+# golangci-lint: generated_at=2026-11-10T10:10:17Z
+internal/app/app.go:20:1: godoc line is too long (83 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
+internal/app/app.go:31:3: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/app/app.go:49:46: Magic number: 2, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/app/app.go:69:25: Magic number: 100.0, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/app/app.go:70:37: Magic number: 100.0, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/color/color.go:60:32: Magic number: 3, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/color/color.go:70:25: Magic number: 2, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/display.go:12:17: Magic number: 1_000_000, in <case> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/display.go:13:47: Magic number: 1_000_000, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/display.go:14:17: Magic number: 1_000, in <case> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/display.go:15:36: Magic number: 1_000, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/model.go:31:48: named return "base" with type "string" must not be referenced or used by a naked return (nonamedreturns)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/model.go:31:61: named return "inner" with type "string" must not be referenced or used by a naked return (nonamedreturns)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/display/model.go:5:1: godoc line is too long (80 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
+internal/render/render.go:175:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/render/render.go:133:6: variable name 'i' is too short for the scope of its usage (varnamelen)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/render/render.go:175:46: Magic number: 0.5, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-10T10:10:17Z
+internal/render/render.go:33:1: godoc line is too long (79 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
+internal/statuspayload/payload.go:50:1: godoc line is too long (79 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
+internal/statuspayload/payload.go:9:1: godoc line is too long (78 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
+internal/terminal/terminal.go:14:1: godoc line is too long (81 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-10T10:10:17Z
 cmd/statusline/main.go:17:2: missing whitespace below this line (after-block) (wsl_v5)	# golangci-lint:first_added=2026-11-09T02:31:49Z last_seen=2026-11-09T02:31:49Z
 internal/app/app.go:55:2: missing whitespace below this line (after-block) (wsl_v5)	# golangci-lint:first_added=2026-11-09T02:31:49Z last_seen=2026-11-09T02:31:49Z
 internal/app/app.go:69:2: missing whitespace above this line (too many lines above return) (wsl_v5)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-09T02:31:49Z
@@ -24,31 +45,10 @@ internal/terminal/terminal.go:36:2: missing whitespace above this line (too many
 internal/version/version.go:28:2: missing whitespace below this line (after-block) (wsl_v5)	# golangci-lint:first_added=2026-11-09T02:31:49Z last_seen=2026-11-09T02:31:49Z
 internal/version/version.go:29:2: missing whitespace above this line (too many lines above return) (wsl_v5)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-09T02:31:49Z
 internal/version/version_test.go:54:2: missing whitespace above this line (too many lines above return) (wsl_v5)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-09T02:31:49Z
-internal/app/app.go:20:1: godoc line is too long (83 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/display/model.go:5:1: godoc line is too long (80 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/render/render.go:33:1: godoc line is too long (79 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/statuspayload/payload.go:49:1: godoc line is too long (79 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/statuspayload/payload.go:9:1: godoc line is too long (78 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/terminal/terminal.go:14:1: godoc line is too long (81 > 77) (godoclint)	# golangci-lint:first_added=2026-11-08T23:08:39Z last_seen=2026-11-08T23:08:39Z
-internal/app/app.go:69:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/app/app.go:49:46: Magic number: 2, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/app/app.go:67:25: Magic number: 100.0, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/app/app.go:68:37: Magic number: 100.0, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/app/app_test.go:244:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/color/color.go:73:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/color/color.go:57:32: Magic number: 3, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/color/color.go:66:25: Magic number: 2, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/color/color_test.go:191:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/display.go:12:17: Magic number: 1_000_000, in <case> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/display.go:13:47: Magic number: 1_000_000, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/display.go:14:17: Magic number: 1_000, in <case> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/display.go:15:36: Magic number: 1_000, in <argument> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/display/model.go:41:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/model.go:30:48: named return "base" with type "string" must not be referenced or used by a naked return (nonamedreturns)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/display/model.go:30:61: named return "inner" with type "string" must not be referenced or used by a naked return (nonamedreturns)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/render/render.go:91:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/render/render.go:127:6: variable name 'i' is too short for the scope of its usage (varnamelen)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
-internal/render/render.go:160:46: Magic number: 0.5, in <operation> detected (mnd)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/statuspayload/payload.go:45:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/terminal/terminal.go:36:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
 internal/version/version.go:29:2: return with no blank line before (nlreturn)	# golangci-lint:first_added=2026-11-08T23:08:27Z last_seen=2026-11-08T23:08:27Z
